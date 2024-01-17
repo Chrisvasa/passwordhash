@@ -1,37 +1,32 @@
 PROG=programmet.exe
-SRC_DIR := src
-INC_DIR := include
-BIN_DIR := bin
-SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
-DEPS := $(wildcard $(INC_DIR)/*.h)
+SOURCES=$(wildcard src/*.cpp)
+DEPS=$(wildcard include/*.h)
 CC=g++
-CFLAGS=-Wall -std=c++20 -I$(INC_DIR)
+CFLAGS=-Wall -Iinclude -std=c++20
 DEBUG?=1
 
 ifeq ($(DEBUG), 1)
 	CFLAGS += -g
-	OUTPUTDIR=$(BIN_DIR)/debug
+	OUTPUTDIR=bin/debug
 	PROG=programmet-debug.exe
 else
 	CFLAGS += -g0 -O3
-	OUTPUTDIR=$(BIN_DIR)/release
-	PROG=programmet.exe
+	OUTPUTDIR=bin/release
 endif
 
-OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OUTPUTDIR)/%.o,$(SOURCES))
+OBJS=$(patsubst src/%.cpp,$(OUTPUTDIR)/%.o,$(SOURCES))
 
-$(PROG): $(OBJS) 
+$(PROG): $(OUTPUTDIR) $(OBJS)
 	$(CC) $(CFLAGS) -o $(PROG) $(OBJS)
 
-$(OUTPUTDIR)/%.o: $(SRC_DIR)/%.cpp $(DEPS)
-ifeq ($(OS),Windows_NT)
-	if not exist "$(dir $@)" mkdir "$(dir $@)"
-else
-	@mkdir -p $(dir $@)
-endif
-	$(CC) $(CFLAGS) -o $@ -c $<
+$(OUTPUTDIR)/%.o: src/%.cpp $(DEPS)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	@rm -rf $(BIN_DIR)/*
+	@del /q /f "$(OUTPUTDIR)\*"
+	@del /q /f $(PROG)
+
+$(OUTPUTDIR):
+	@mkdir -p "$(OUTPUTDIR)"
 
 .PHONY: clean
