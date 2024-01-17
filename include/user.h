@@ -11,6 +11,7 @@ public:
     // void setUserName(std::string uName) { userName = uName; }
     std::string getPassword();
     bool setPassword(std::string pass);
+    bool verifyLogin(std::string user, std::string pass);
 };
 
 #endif

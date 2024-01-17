@@ -20,3 +20,7 @@ bool User::setPassword(std::string pass)
     }
     return false;
 }
+bool User::verifyLogin(std::string user, std::string pass)
+{
+    return (user == userName && pass == passWord);
+}

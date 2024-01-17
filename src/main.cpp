@@ -3,6 +3,7 @@
 #include <iostream>
 #include <regex>
 #include <vector>
+#include <fstream>
 
 #include "validate.h"
 #include "user.h"
@@ -24,11 +25,18 @@ Vid skapa användare ska du:
     * minst ett specialtecken */
 void createUser()
 {   
-    std::function<bool(std::string)> userFunc = isValidEmail;
-    std::function<bool(std::string)> passFunc = isValidPassword;
-
-    std::string userName = getValidInput(userFunc, "Username: ");
-    std::string password = getValidInput(passFunc, "Password: ");
+    std::string userName = getValidInput(isValidEmail, "Username: ");
+    std::string password = getValidInput(isValidPassword, "Password: ");
+    
+    // TEMP - User check list 
+    for(auto& user : userList)
+    {
+        if(user.getUserName() == userName)
+        {
+            std::cout << "User already exists.." << std::endl;
+            return;
+        }
+    }
 
     User user(userName, password);
     userList.push_back(user);
@@ -36,15 +44,58 @@ void createUser()
     << "Username: " << userName << "\nPassword: " << password << std::endl;
 }
 
+
+bool login()
+{
+    std::string userName = getValidInput(isValidEmail, "Username: ");
+    std::string password = getValidInput(isValidPassword, "Password: ");
+
+    for(auto& user : userList)
+        if(user.verifyLogin(userName,password))
+            return true;
+    return false;
+}
+
+void saveUsersToFile()
+{
+    std::string filename = "data/users.txt";
+    std::ofstream file;
+
+    file.open(filename);
+
+    int size = userList.size();
+    std::cout << size << std::endl;
+    for(int i = 0; i < size; i++)
+    {
+        file << userList[i].getUserName() << ";" << userList[i].getPassword();
+        if(i < size - 1)
+            file << '\n';
+    }
+
+    // if(!file)
+    // {
+    //     std::cerr << "Unable to open file." << std::endl;
+    // }
+}
+
 int main(int argc, char const *argv[])
 {
     createUser();
     createUser();
 
+    // TEMP - prints created users
     for(auto& user : userList)
     {
         std::cout << user.getUserName() << "\n";
     }
+
+    // TEMP - User login
+    if(login())
+        std::cout << "Login successful!" << std::endl;
+    else
+        std::cout << "Invalid Username or Password." << std::endl;
+    
+    saveUsersToFile();
     
     return 0;
 }
