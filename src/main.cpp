@@ -1,34 +1,15 @@
-#include <iostream>
 #include <algorithm>
 #include <functional>
-#include <vector>
+#include <iostream>
 #include <regex>
+#include <vector>
 
-bool isValidEmail(std::string userName)
-{
-    std::regex pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d])(?=.*@).+$");
-    return (userName.length() > 7 && std::regex_match(userName, pattern));
-}
+#include "validate.h"
+#include "user.h"
 
-bool isValidPassword(std::string password)
-{
-    std::regex pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d]).+$");
-    return (password.length() > 7 && std::regex_match(password, pattern));
-}
-
-std::string getValidInput(std::function<bool(std::string&)> isValid, std::string prompt)
-{
-    std::string input;
-    while(true)
-    {
-        std::cout << prompt;
-        if(!(std::cin >> input) || !isValid(input))
-            std::cout << "Wrong input. Try again." << std::endl;
-        else
-            break;
-    }
-    return input;
-}
+// TEMP USER LIST <<<<< REMOVE
+std::vector<User> userList;
+// TEMP USER LIST <<<<< REMOVE
 
 /*1. Skapa användare**  
 Vid skapa användare ska du:
@@ -43,18 +24,27 @@ Vid skapa användare ska du:
     * minst ett specialtecken */
 void createUser()
 {   
-    std::vector<std::function<bool(std::string)>> fList;
-    fList.push_back(isValidEmail);
-    fList.push_back(isValidPassword);
-    std::string userName = getValidInput(fList[0], "Username: ");
-    std::string password = getValidInput(fList[1], "Password: ");
+    std::function<bool(std::string)> userFunc = isValidEmail;
+    std::function<bool(std::string)> passFunc = isValidPassword;
 
-    std::cout << "Username: " << userName << "\nPassword: " << password << std::endl;
+    std::string userName = getValidInput(userFunc, "Username: ");
+    std::string password = getValidInput(passFunc, "Password: ");
+
+    User user(userName, password);
+    userList.push_back(user);
+    std::cout << "User was created with the following information.\n" 
+    << "Username: " << userName << "\nPassword: " << password << std::endl;
 }
 
 int main(int argc, char const *argv[])
 {
     createUser();
+    createUser();
+
+    for(auto& user : userList)
+    {
+        std::cout << user.getUserName() << "\n";
+    }
     
     return 0;
 }
