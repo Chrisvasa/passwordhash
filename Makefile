@@ -3,6 +3,7 @@ SOURCES=$(wildcard src/*.cpp)
 DEPS=$(wildcard include/*.h)
 CC=g++
 CFLAGS=-Wall -Iinclude -std=c++20
+LDFLAGS=-lssl -lcrypto
 DEBUG?=1
 
 ifeq ($(DEBUG), 1)
@@ -17,7 +18,7 @@ endif
 OBJS=$(patsubst src/%.cpp,$(OUTPUTDIR)/%.o,$(SOURCES))
 
 $(PROG): $(OUTPUTDIR) $(OBJS)
-	$(CC) $(CFLAGS) -o $(PROG) $(OBJS)
+	$(CC) $(CFLAGS) -o $(PROG) $(OBJS) $(LDFLAGS)
 
 $(OUTPUTDIR)/%.o: src/%.cpp $(DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@
