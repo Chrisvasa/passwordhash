@@ -98,9 +98,8 @@ void saveUserToFile(User user)
 
 void createUser()
 {   
-    std::string userName = getValidInput(isValidEmail, "Username: ");
-    std::string password = getValidInput(isValidPassword, "Password: ");
-    std::string hash = hashPassword(password);
+    std::string userName, password; 
+    getValidInput(isValidEmail, userName, "Username: ");
     
     std::optional<User> user = getUserFromFile(userName);
     if(user.has_value())
@@ -109,6 +108,9 @@ void createUser()
         return;
     }
 
+    getValidInput(isValidPassword, password, "Password: ");
+    std::string hash = hashPassword(password);
+    
     User newUser(userName, hash);
     saveUserToFile(newUser);
     std::cout << "User was created with the following information.\n" 
@@ -117,13 +119,15 @@ void createUser()
 
 bool login()
 {
-    std::string userName = getValidInput(isValidEmail, "Username: ");
-    std::string password = getValidInput(isValidPassword, "Password: ");
-    std::string hash = hashPassword(password);
+    std::string userName, password;
+    getValidInput(isValidEmail, userName, "Username: ");
 
     std::optional<User> user = getUserFromFile(userName);
     if(user.has_value())
     {
+        getValidInput(isValidPassword, password, "Password: ");
+        std::string hash = hashPassword(password);
+
         if(user.value().verifyLogin(userName,hash))
             return true;
     }

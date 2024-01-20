@@ -4,8 +4,8 @@
 #include <functional>
 #include <iostream>
 
-bool isValidEmail(std::string userName);
-bool isValidPassword(std::string password);
-std::string getValidInput(std::function<bool(std::string&)> isValid, std::string prompt);
+bool isValidEmail(const std::string& userName);
+bool isValidPassword(const std::string& password);
+void getValidInput(std::function<bool(std::string&)> isValid, std::string& input ,const std::string& prompt);
 
 #endif
