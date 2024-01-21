@@ -99,8 +99,8 @@ void saveUserToFile(User user)
 void createUser()
 {   
     std::string userName, password; 
+
     getValidInput(isValidEmail, userName, "Username: ");
-    
     std::optional<User> user = getUserFromFile(userName);
     if(user.has_value())
     {
@@ -110,7 +110,7 @@ void createUser()
 
     getValidInput(isValidPassword, password, "Password: ");
     std::string hash = hashPassword(password);
-    
+
     User newUser(userName, hash);
     saveUserToFile(newUser);
     std::cout << "User was created with the following information.\n" 
@@ -120,8 +120,8 @@ void createUser()
 bool login()
 {
     std::string userName, password;
-    getValidInput(isValidEmail, userName, "Username: ");
 
+    getValidInput(isValidEmail, userName, "Username: ");
     std::optional<User> user = getUserFromFile(userName);
     if(user.has_value())
     {
@@ -137,14 +137,41 @@ bool login()
     // 2. Logout
 }
 
+void tempMenu(std::vector<std::string> menuItems)
+{
+    while(true)
+    {
+        for(int i = 0; i < (int)menuItems.size(); i++)
+        {
+            std::cout << i + 1 << ". " << menuItems[i] << '\n';
+        }
+
+        int input;
+        if(!(std::cin >> input))
+        {
+            std::cout << "Wrong input." << std::endl;
+            return;
+        }
+
+        switch(input)
+        {
+            case 1:
+                if(login())
+                    std::cout << "Login successful!" << std::endl;
+                else
+                    std::cout << "Invalid Username or Password." << std::endl;
+                break;
+            case 2:
+                createUser();
+                break;
+            default:
+                return;
+        }
+    }
+}
+
 int main(int argc, char const *argv[])
 {
-    createUser();
-
-    // TEMP - User login
-    if(login())
-        std::cout << "Login successful!" << std::endl;
-    else
-        std::cout << "Invalid Username or Password." << std::endl;
+    tempMenu({"Login", "Create Account", "Exit"});
     return 0;
 }

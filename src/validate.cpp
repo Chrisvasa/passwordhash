@@ -4,7 +4,7 @@
 
 bool isValidEmail(const std::string& userName)
 {
-    std::regex pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d])(?=.*@).+$");
+    std::regex pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z\\d])(?=.*@).+$");
     return (userName.length() > 7 && std::regex_match(userName, pattern));
 }
 
