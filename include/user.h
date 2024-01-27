@@ -4,14 +4,13 @@
 
 class User {
     std::string userName;
-    std::string passWord;
+    std::string password;
 public:
-    User(std::string uName, std::string pWord);
-    std::string getUserName();
-    // void setUserName(std::string uName) { userName = uName; }
-    std::string getPassword();
+    User(const std::string userName, std::string password);
+    std::string getUserName() const;
+    std::string getPassword() const;
     bool setPassword(std::string pass);
-    bool verifyLogin(std::string user, std::string pass);
+    bool verifyLogin(const std::string& user,const std::string& pass);
 };
 
 #endif
