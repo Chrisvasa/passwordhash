@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <regex>
 #include <vector>
@@ -9,6 +10,23 @@
 
 #include "validate.h"
 #include "user.h"
+
+std::string hashPassword(const std::string& password);
+std::optional<User> getUserFromFile(const std::string& targetUser);
+bool isEmptyFile(const std::string& filename);
+std::string generateSalt();
+void saveUserToFile(User user);
+void saveUnsafeToFile(User user);
+void createUser();
+bool login();
+void tempMenu(std::vector<std::string> menuItems);
+
+int main(int argc, char const *argv[])
+{
+    srand(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()));
+    tempMenu({"Login", "Create Account", "Exit"});
+    return 0;
+}
 
 std::string hashPassword(const std::string& password)
 {
@@ -47,13 +65,13 @@ std::optional<User> getUserFromFile(const std::string& targetUser)
     while(std::getline(file, line))
     {
         std::istringstream iss(line);
-        std::string username, password;
+        std::string username, salt, password;
 
-        if(std::getline(iss, username, ';') && std::getline(iss, password))
+        if(std::getline(iss, username, ';') && std::getline(iss, salt, ';') && std::getline(iss, password))
         {
             if(username == targetUser)
             {
-                return User(username, password);
+                return User(username, salt, password);
             }
         }
     }
@@ -61,34 +79,51 @@ std::optional<User> getUserFromFile(const std::string& targetUser)
     return std::nullopt;
 }
 
-int getUserCount(const std::string& filename)
+bool isEmptyFile(const std::string& filename)
 {
-    std::ifstream file("data/users.txt");
-    std::string line;
-    int count = 0;
-
-    if(!file.is_open()) 
+    std::ifstream file(filename);
+    if(!file)
     {
-        std::cerr << "Unable to open file" << std::endl;
+        std::cerr << "File not found." << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    while(std::getline(file, line))
-    {
-        count++;
-    }
+    return file.peek() == std::ifstream::traits_type::eof();
+}
 
-    return count;
+std::string generateSalt()
+{
+    char s[16];
+    for (int i = 0; i < 16; i++)
+    {
+        s[i] = (48 + (rand() % 75));
+    }
+    
+    s[15] = '\0';
+    return s;
 }
 
 void saveUserToFile(User user)
 {
     std::string filename = "data/users.txt";
     std::ofstream file;
-    int userAmount = getUserCount(filename);
 
     file.open(filename, std::ios::app);
-    if(userAmount > 0)
+    if(!isEmptyFile(filename))
+        file << std::endl;
+    file << user.getUserName() << ";" << user.getSalt() << ";" << user.getPassword();
+    file.close();
+
+    std::cout << "User was sucessfully saved." << std::endl;
+}
+
+void saveUnsafeToFile(User user)
+{
+    std::string filename = "data/unsafe_users.txt";
+    std::ofstream file;
+
+    file.open(filename, std::ios::app);
+    if(!isEmptyFile(filename))
         file << std::endl;
     file << user.getUserName() << ";" << user.getPassword();
     file.close();
@@ -98,7 +133,8 @@ void saveUserToFile(User user)
 
 void createUser()
 {   
-    std::string userName, password; 
+    std::string userName {};
+    std::string password {};
 
     getValidInput(isValidEmail, userName, "Username: ");
     std::optional<User> user = getUserFromFile(userName);
@@ -109,32 +145,39 @@ void createUser()
     }
 
     getValidInput(isValidPassword, password, "Password: ");
+    std::string salt = generateSalt();
+    std::string safeHash = hashPassword(salt + password);
     std::string hash = hashPassword(password);
 
-    User newUser(userName, hash);
+    // Saves the "safer" user
+    User newUser(userName, salt, safeHash);
     saveUserToFile(newUser);
+    // Saves the "unsafe" user
+    newUser.setPassword(hash); // Changes password to unsalted hash
+    saveUnsafeToFile(newUser);
     std::cout << "User was created with the following information.\n" 
-        << "Username: " << userName << "\nPassword: " << hash << std::endl;
+        << "Username: " << userName << "\nPassword: " << safeHash << std::endl;
+}
+
+bool authenticateUser(User& user)
+{
+    std::string password {};
+    getValidInput(isValidPassword, password, "Password: ");
+    std::string hash = hashPassword(user.getSalt() + password);
+    return user.verifyLogin(user.getUserName(), hash);
 }
 
 bool login()
 {
-    std::string userName, password;
-
+    std::string userName {};
     getValidInput(isValidEmail, userName, "Username: ");
     std::optional<User> user = getUserFromFile(userName);
-    if(user.has_value())
-    {
-        getValidInput(isValidPassword, password, "Password: ");
-        std::string hash = hashPassword(password);
-
-        if(user.value().verifyLogin(userName,hash))
-            return true;
+    if(!user) {
+        std::cout << "User not found." << std::endl;
+        return false;
     }
-    return false;
 
-    // 1. Greet <-- Greet users email ("Hello xxx@xxx.se")
-    // 2. Logout
+    return (authenticateUser(user.value()));
 }
 
 void tempMenu(std::vector<std::string> menuItems)
@@ -168,10 +211,4 @@ void tempMenu(std::vector<std::string> menuItems)
                 return;
         }
     }
-}
-
-int main(int argc, char const *argv[])
-{
-    tempMenu({"Login", "Create Account", "Exit"});
-    return 0;
 }

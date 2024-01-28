@@ -1,23 +1,20 @@
 #include "user.h"
 #include "validate.h"
 
-User::User(const std::string userName, std::string password)
+User::User(const std::string userName, const std::string salt, std::string password)
 {
     this->userName = userName;
+    this->salt = salt;
     this->password = password;
 }
 
 std::string User::getUserName() const { return userName; }
 std::string User::getPassword() const { return password; }
-bool User::setPassword(const std::string pass) 
+std::string User::getSalt() const { return salt; }
+void User::setPassword(std::string pass) 
 { 
-    if(isValidPassword(pass))
-    {
-        password = pass; 
-        std::cout << "Password was changed." << std::endl;
-        return true;
-    }
-    return false;
+    password = pass; 
+    std::cout << "Password was changed." << std::endl;
 }
 bool User::verifyLogin(const std::string& user, const std::string& pass)
 {

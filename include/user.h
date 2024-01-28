@@ -5,11 +5,13 @@
 class User {
     std::string userName;
     std::string password;
+    std::string salt;
 public:
-    User(const std::string userName, std::string password);
+    User(const std::string userName, const std::string salt, std::string password);
     std::string getUserName() const;
     std::string getPassword() const;
-    bool setPassword(std::string pass);
+    std::string getSalt() const;
+    void setPassword(std::string pass);
     bool verifyLogin(const std::string& user,const std::string& pass);
 };
 
