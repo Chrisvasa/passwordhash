@@ -1,6 +1,7 @@
 PROG=programmet.exe
-SOURCES=$(wildcard src/*.cpp)
-DEPS=$(wildcard include/*.h)
+SOURCES=$(wildcard src/*.cpp) # Hämtar alla .cpp filer från src foldern.
+DEPS=$(wildcard include/*.h)  # Hämtar alla .h filer från include foldern
+OBJS=$(patsubst src/%.cpp,$(OUTPUTDIR)/%.o,$(SOURCES)) # Konverterar .cpp filerna i src till .o filer i bin
 CC=g++
 CFLAGS=-Wall -Iinclude -std=c++20
 LDFLAGS=-lssl -lcrypto
@@ -14,8 +15,6 @@ else
 	CFLAGS += -g0 -O3
 	OUTPUTDIR=bin/release
 endif
-
-OBJS=$(patsubst src/%.cpp,$(OUTPUTDIR)/%.o,$(SOURCES))
 
 $(PROG): $(OUTPUTDIR) $(OBJS)
 	$(CC) $(CFLAGS) -o $(PROG) $(OBJS) $(LDFLAGS)
