@@ -11,6 +11,7 @@ public:
     std::string getUserName() const;
     std::string getPassword() const;
     std::string getSalt() const;
+    bool isSecure() const;
     void setPassword(std::string pass);
     bool verifyLogin(const std::string& user,const std::string& pass);
 };

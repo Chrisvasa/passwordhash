@@ -8,6 +8,7 @@
 #include <openssl/evp.h>
 #include "../include/file.h"
 
+// Manages all file access functions
 namespace File
 {
     std::optional<User> getUserFromFile(const std::string& targetUser)
@@ -50,7 +51,7 @@ namespace File
         return file.peek() == std::ifstream::traits_type::eof();
     }
 
-    void saveUserToFile(User user)
+    void saveUserToFile(User& user)
     {
         std::string filename = "data/users.txt";
         std::ofstream file;
@@ -64,7 +65,7 @@ namespace File
         std::cout << "User was sucessfully saved." << std::endl;
     }
 
-    void saveUnsafeToFile(User user)
+    void saveUnsafeToFile(User& user)
     {
         std::string filename = "data/unsafe_users.txt";
         std::ofstream file;
