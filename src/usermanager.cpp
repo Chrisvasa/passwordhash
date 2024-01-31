@@ -30,22 +30,18 @@ void createUser()
         << "Username: " << userName << "\nPassword: " << safeHash << std::endl;
 }
 
-bool authenticateUser(User& user)
+bool authenticateUser(User& user, std::string& password)
 {
-    std::string password {};
-    getValidInput(isValidPassword, password, "Password: ");
     std::string hash = Hash::hashPassword(user.getSalt() + password);
     return user.verifyLogin(user.getUserName(), hash);
 }
 
-bool login()
+bool authenticateAndLogin(std::string userName, std::string password)
 {
-    std::string userName {};
-    getValidInput(isValidEmail, userName, "Username: ");
     std::optional<User> user = File::getUserFromFile(userName);
     if(!user) {
         std::cout << "User not found." << std::endl;
         return false;
     }
-    return (authenticateUser(user.value()));
+    return (authenticateUser(user.value(), password));
 }

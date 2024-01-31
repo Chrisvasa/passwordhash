@@ -6,9 +6,9 @@
 // - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
 // - Introduction, links and more at the top of imgui.cpp
 
-#include "imgui.h"
-#include "imgui_impl_win32.h"
-#include "imgui_impl_dx11.h"
+#include "../imgui/imgui.h"
+#include "../imgui/backends/imgui_impl_win32.h"
+#include "../imgui/backends/imgui_impl_dx11.h"
 #include <d3d11.h>
 #include <tchar.h>
 #include <time.h>
@@ -37,7 +37,7 @@ int main(int, char**)
     //ImGui_ImplWin32_EnableDpiAwareness();
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, L"ImGui Example", nullptr };
     ::RegisterClassExW(&wc);
-    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Dear ImGui DirectX11 Example", WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, nullptr, nullptr, wc.hInstance, nullptr);
+    HWND hwnd = ::CreateWindowW(wc.lpszClassName, L"Password Hasher", WS_OVERLAPPEDWINDOW, 100, 100, 800, 640, nullptr, nullptr, wc.hInstance, nullptr);
 
     // Initialize Direct3D
     if (!CreateDeviceD3D(hwnd))
@@ -138,6 +138,7 @@ int main(int, char**)
         // ------ MINA GUI FUNKTIONER BÖRJAR ---------- 
 
         Application::RenderUI();
+        // ImGui::ShowDemoWindow();
 
         // ------ MINA GUI FUNKTIONER SLUT ---------- 
 

@@ -4,7 +4,7 @@
 #include "user.h"
 
 void createUser();
-bool authenticateUser(User& user);
-bool login();
+bool authenticateUser(User& user, std::string& password);
+bool authenticateAndLogin(std::string userName, std::string password);
 
 #endif

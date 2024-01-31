@@ -1,5 +1,5 @@
-#include "user.h"
-#include "validate.h"
+#include "../include/user.h"
+#include "../include/validate.h"
 
 User::User(const std::string userName, const std::string salt, std::string password)
 {

@@ -1,6 +1,6 @@
 #include <openssl/evp.h>
 #include <iomanip>
-#include "hash.h"
+#include "../include/hash.h"
 
 namespace Hash
 {
