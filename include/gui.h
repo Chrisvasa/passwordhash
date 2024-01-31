@@ -3,7 +3,7 @@
 
 namespace Application
 {
-
+    void RenderUI(void);
 }
 
 #endif
