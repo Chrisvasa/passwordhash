@@ -5,21 +5,28 @@
 #include "hash.h"
 #include "file.h"
 
-void createUser()
-{   
-    std::string userName {};
-    std::string password {};
-    getValidInput(isValidEmail, userName, "Username: ");
+bool createUser(const std::string& userName, const std::string& password)
+{
+    if(!isValidEmail(userName))
+        return false;
+    
     std::optional<User> user = File::getUserFromFile(userName);
     if(user.has_value())
     {
         std::cout << "User already exists.." << std::endl;
-        return;
+        return false;
     }
-    getValidInput(isValidPassword, password, "Password: ");
+
+    if(!isValidPassword(password))
+    {
+        std::cout << "Invalid password." << std::endl;
+        return false;
+    }
+
     std::string salt = Hash::generateSalt();
     std::string safeHash = Hash::hashPassword(salt + password);
     std::string hash = Hash::hashPassword(password);
+
     // Saves the "safer" user
     User newUser(userName, salt, safeHash);
     File::saveUserToFile(newUser);
@@ -28,6 +35,7 @@ void createUser()
     File::saveUnsafeToFile(newUser);
     std::cout << "User was created with the following information.\n" 
         << "Username: " << userName << "\nPassword: " << safeHash << std::endl;
+    return true;
 }
 
 bool authenticateUser(User& user, std::string& password)

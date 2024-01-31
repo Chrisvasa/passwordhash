@@ -12,6 +12,7 @@ namespace Application
     // CRINGE GLOBAL VARIABLE
     char username[50] = {}; 
     char password[50] = {};
+    bool accountCreated = false;
 
     void RenderUI(void)
     {
@@ -30,6 +31,22 @@ namespace Application
             else {
                 memset(password, 0, sizeof(password));
             }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Create Account"))
+        {
+            if(createUser(std::string(username), std::string(password)))
+            {
+                accountCreated = true;
+            }
+        }
+
+        if(accountCreated) {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+            ImGui::Text("Account was sucessfully created!");
+            ImGui::PopStyleColor();
+            memset(username, 0, sizeof(username));
+            memset(password, 0, sizeof(password));
         }
 
         ImGui::End();
