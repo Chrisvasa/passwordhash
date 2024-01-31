@@ -7,8 +7,8 @@
 namespace File
 {
     std::optional<User> getUserFromFile(const std::string& targetUser);
-    void saveUserToFile(User& user);
-    void saveUnsafeToFile(User& user);
+    void saveUserToFile(User& user, const std::string& pass);
+    void saveUnsafeToFile(User& user, const std::string& pass);
 }
 
 #endif

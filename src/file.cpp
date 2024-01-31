@@ -51,7 +51,7 @@ namespace File
         return file.peek() == std::ifstream::traits_type::eof();
     }
 
-    void saveUserToFile(User& user)
+    void saveUserToFile(User& user, const std::string& pass)
     {
         std::string filename = "data/users.txt";
         std::ofstream file;
@@ -59,13 +59,13 @@ namespace File
         file.open(filename, std::ios::app);
         if(!isEmptyFile(filename))
             file << std::endl;
-        file << user.getUserName() << ";" << user.getSalt() << ";" << user.getPassword();
+        file << user.getUserName() << ";" << user.getSalt() << ";" << pass;
         file.close();
 
         std::cout << "User was sucessfully saved." << std::endl;
     }
 
-    void saveUnsafeToFile(User& user)
+    void saveUnsafeToFile(User& user, const std::string& pass)
     {
         std::string filename = "data/unsafe_users.txt";
         std::ofstream file;
@@ -73,7 +73,7 @@ namespace File
         file.open(filename, std::ios::app);
         if(!isEmptyFile(filename))
             file << std::endl;
-        file << user.getUserName() << ";" << user.getPassword();
+        file << user.getUserName() << ";" << pass;
         file.close();
 
         std::cout << "User was sucessfully saved." << std::endl;

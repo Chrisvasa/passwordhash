@@ -41,8 +41,7 @@ namespace Application
         if (ImGui::Button("Create Account"))
         {
             // Add bool check later - Button to press? MD5 or SHA256
-            if(createUser(std::string(username), std::string(password), security))
-            {
+            if(createUser(std::string(username), std::string(password), security)) {
                 accountCreated = true;
             }
         }

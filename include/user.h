@@ -9,10 +9,9 @@ class User {
 public:
     User(const std::string userName, const std::string salt, std::string password);
     std::string getUserName() const;
-    std::string getPassword() const;
     std::string getSalt() const;
     bool isSecure() const;
-    void setPassword(std::string pass);
+    // void setPassword(std::string pass);
     bool verifyLogin(const std::string& user,const std::string& pass);
 };
 

@@ -29,10 +29,9 @@ bool createUser(const std::string& userName, const std::string& password, bool s
 
     // Saves the "safer" user
     User newUser(userName, salt, safeHash);
-    File::saveUserToFile(newUser);
+    File::saveUserToFile(newUser, safeHash);
     // Saves the "unsafe" user
-    newUser.setPassword(hash); // Changes password to unsalted hash
-    File::saveUnsafeToFile(newUser);
+    File::saveUnsafeToFile(newUser, hash);
     std::cout << "User was created with the following information.\n" 
         << "Username: " << userName << "\nPassword: " << safeHash << std::endl;
     return true;
