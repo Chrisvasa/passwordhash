@@ -16,6 +16,7 @@ namespace Application
     char username[50] = {};
     char hash[50] = {}; 
     char password[50] = {};
+    std::string clearpass = {};
     bool accountCreated = false;
     bool loginFailed = false;
     bool security = false;
@@ -75,7 +76,7 @@ namespace Application
         ImGui::Begin("Password Cracker");
         ImGui::InputText(_labelPrefix("Enter Hash: ").c_str(), hash, sizeof(hash));
         if(ImGui::Button("Hash")) {
-            File::readAndWriteToFile("data/passhash.txt", File::fillVector, std::string(hash));
+            clearpass = File::binaryHash(hash);
         }
         ImGui::End();
     }
