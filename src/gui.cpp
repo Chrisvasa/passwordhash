@@ -3,6 +3,7 @@
 #include "../include/gui.h"
 #include "../include/usermanager.h"
 #include "../imgui/imgui.h"
+#include "../include/file.h"
 
 // This class manages the different ImGui components and their input
 namespace Application
@@ -15,6 +16,7 @@ namespace Application
     char username[50] = {}; 
     char password[50] = {};
     bool accountCreated = false;
+    bool loginFailed = false;
     bool security = false;
 
     void RenderUI(void)
@@ -32,15 +34,16 @@ namespace Application
         if(ImGui::Button("Login")) {
             if(authenticateAndLogin(std::string(username), std::string(password))) {
                 std::cout << "Login success!" << std::endl;
+                loginFailed = false;
             }
             else {
-                memset(password, 0, sizeof(password));
+                loginFailed = true;
+                memset(password, 0, sizeof(password)); // Maybe not needed? Check if string possible
             }
         }
         ImGui::SameLine();
         if (ImGui::Button("Create Account"))
         {
-            // Add bool check later - Button to press? MD5 or SHA256
             if(createUser(std::string(username), std::string(password), security)) {
                 accountCreated = true;
             }
@@ -48,12 +51,19 @@ namespace Application
         ImGui::SameLine();
         ImGui::Checkbox("Extra security?", &security);
 
+
+        if(loginFailed)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+            ImGui::Text("Login failed.");
+            ImGui::PopStyleColor();
+        }
         if(accountCreated) {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Text("Account was sucessfully created!");
             ImGui::PopStyleColor();
-            memset(username, 0, sizeof(username));
-            memset(password, 0, sizeof(password));
+            memset(username, 0, sizeof(username)); // Maybe not needed? Check if string possible
+            memset(password, 0, sizeof(password)); // Maybe not needed? Check if string possible
         }
 
         ImGui::End();
@@ -62,6 +72,9 @@ namespace Application
     void PassCrackerWindow(void)
     {
         ImGui::Begin("Password Cracker");
+        if(ImGui::Button("Hash")) {
+            File::passwordHasher("data/100kpass.txt");
+        }
         ImGui::End();
     }
 
