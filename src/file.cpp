@@ -82,7 +82,7 @@ namespace File
         std::cout << "User was sucessfully saved." << std::endl;
     }
 
-    void readAndWriteToFile(const std::string filePath, std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing)
+    void readAndWriteToFile(const std::string filePath, std::function<void(std::string&, std::ifstream&, std::ofstream&, const std::string hash)> doTheThing, const std::string hash)
     {
         std::ifstream inFile(filePath);
         std::ofstream outFile("data/temp.txt");
@@ -94,17 +94,18 @@ namespace File
             return;
         }
 
-        doTheThing(line, inFile, outFile);
+        doTheThing(line, inFile, outFile, hash);
 
         inFile.close();
         outFile.close();
 
-        std::remove(filePath.c_str()); // Delete the original file
-        std::rename("data/temp.txt", filePath.c_str()); // Rename temp file to original file name
+        // std::remove(filePath.c_str()); // Delete the original file
+        // std::rename("data/temp.txt", filePath.c_str()); // Rename temp file to original file name
     }
 
-    void sortByHash(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
+    void fillVector(std::string& line, std::ifstream& inFile, std::ofstream& outFile, const std::string hash)
     {
+        std::cout << "Arrived at vector" << std::endl;
         std::vector<std::vector<std::string>> lines;
         while(std::getline(inFile, line))
         {
@@ -117,16 +118,45 @@ namespace File
                 lines.push_back(row);
             }
         }
-
-        std::sort(lines.begin(), lines.end(), [] (std::vector<std::string>& v1, std::vector<std::string>& v2) {
-            return v1[1] < v2[1];
-        });
-
-        for(int i = 0; i < lines.size(); i++)
-        {
-            outFile << lines[i][0] << ";" << lines[i][1] << std::endl;
-        }
+        std::cout << "Done with filling vector" << std::endl;
+        binaryHash(lines, hash);
+        // return lines;
     }
+
+    void binaryHash(std::vector<std::vector<std::string>>& lines, const std::string hash)
+    {
+        int left = 0;
+        int right = lines.size() - 1;
+
+        while (left <= right) {
+            int mid = left + (right - left) / 2;
+
+            // Compare the hash with the mid element
+            if (lines[mid][1] == hash) {
+                std::cout << "Found it: " << lines[mid][1] << " And their password is: " << lines[mid][0] << std::endl;
+                return;
+            } else if (lines[mid][1] < hash) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+
+        std::cout << "Hash not found." << std::endl;
+    }
+
+    // void sortByHash(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
+    // {
+    //     // std::vector<std::vector<std::string>> lines = fillVector(line, inFile, outFile, hash);
+    //     std::sort(lines.begin(), lines.end(), [] (std::vector<std::string>& v1, std::vector<std::string>& v2) {
+    //         return v1[1] < v2[1];
+    //     });
+
+    //     for(int i = 0; i < lines.size(); i++)
+    //     {
+    //         outFile << lines[i][0] << ";" << lines[i][1] << std::endl;
+    //     }
+    // }
 
     void passwordValidator(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
     {

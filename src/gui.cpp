@@ -13,7 +13,8 @@ namespace Application
     static std::string _labelPrefix(const char* const label);
 
     // CRINGE GLOBAL VARIABLE
-    char username[50] = {}; 
+    char username[50] = {};
+    char hash[50] = {}; 
     char password[50] = {};
     bool accountCreated = false;
     bool loginFailed = false;
@@ -72,8 +73,9 @@ namespace Application
     void PassCrackerWindow(void)
     {
         ImGui::Begin("Password Cracker");
+        ImGui::InputText(_labelPrefix("Enter Hash: ").c_str(), hash, sizeof(hash));
         if(ImGui::Button("Hash")) {
-            File::readAndWriteToFile("data/passhash.txt", File::sortByHash);
+            File::readAndWriteToFile("data/passhash.txt", File::fillVector, std::string(hash));
         }
         ImGui::End();
     }
