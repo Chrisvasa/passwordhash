@@ -6,6 +6,9 @@
 
 bool isValidEmail(const std::string& userName);
 bool isValidPassword(const std::string& password);
-void getValidInput(std::function<bool(std::string&)> isValid, std::string& input ,const std::string& prompt);
+bool containsNumbers(const std::string& str);
+bool containsUppercase(const std::string& str);
+bool containsLowercase(const std::string& str);
+bool containsSymbols(const std::string& str);
 
 #endif
