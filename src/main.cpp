@@ -138,7 +138,7 @@ int main(int, char**)
         // ------ MINA GUI FUNKTIONER BÖRJAR ---------- 
 
         Application::RenderUI();
-        ImGui::ShowDemoWindow();
+        // ImGui::ShowDemoWindow();
 
         // ------ MINA GUI FUNKTIONER SLUT ---------- 
 

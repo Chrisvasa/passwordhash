@@ -4,6 +4,7 @@
 #include "../include/usermanager.h"
 #include "../imgui/imgui.h"
 #include "../include/file.h"
+#include "../include/cracker.h"
 
 // This class manages the different ImGui components and their input
 namespace Application
@@ -76,7 +77,7 @@ namespace Application
         ImGui::Begin("Password Cracker");
         ImGui::InputText(_labelPrefix("Enter Hash: ").c_str(), hash, sizeof(hash));
         if(ImGui::Button("Hash")) {
-            clearpass = File::binaryHash(hash);
+            clearpass = binaryHash(hash);
         }
         ImGui::End();
     }

@@ -11,14 +11,12 @@ bool createUser(const std::string& userName, const std::string& password, bool s
         return false;
     
     std::optional<User> user = File::getUserFromFile(userName);
-    if(user.has_value())
-    {
+    if(user.has_value()) {
         std::cout << "User already exists.." << std::endl;
         return false;
     }
 
-    if(!isValidPassword(password))
-    {
+    if(!isValidPassword(password)) {
         std::cout << "Invalid password." << std::endl;
         return false;
     }

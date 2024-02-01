@@ -15,18 +15,22 @@ bool isValidPassword(const std::string& password)
 }
 
 // USED FOR PASSWORD GENERATION
-bool containsNumbers(const std::string& str) {
+bool containsNumbers(const std::string& str) 
+{
     return std::regex_search(str, std::regex("\\d"));
 }
 
-bool containsUppercase(const std::string& str) {
+bool containsUppercase(const std::string& str) 
+{
     return std::regex_search(str, std::regex("[A-Z]"));
 }
 
-bool containsLowercase(const std::string& str) {
+bool containsLowercase(const std::string& str) 
+{
     return std::regex_search(str, std::regex("[a-z]"));
 }
 
-bool containsSymbols(const std::string& str) {
+bool containsSymbols(const std::string& str) 
+{
     return std::regex_search(str, std::regex("[^\\w\\s]")); // or use "[\\.,\\?!]" for specific symbols
 }

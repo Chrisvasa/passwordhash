@@ -11,11 +11,11 @@ namespace File
     void saveUserToFile(User& user, const std::string& pass);
     void saveUnsafeToFile(User& user, const std::string& pass);
     void readAndWriteToFile(const std::string filePath, std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing);
-    std::vector<std::vector<std::string>> fillVector(std::string& line, std::ifstream& inFile);
-    std::string binaryHash(const std::string hash);
-    void passwordValidator(std::string& line, std::ifstream& inFile, std::ofstream& outFile);
-    void passwordHasher(std::string& line, std::ifstream& inFile, std::ofstream& outFile);
-    void sortByHash(std::string& line, std::ifstream& inFile, std::ofstream& outFile);
+    std::vector<std::vector<std::string>> fillVectorFromFile(const std::string fP);
+    // Move these to some other file
+    void ensureValidPasswords(std::string& line, std::ifstream& inFile, std::ofstream& outFile);
+    void appendHashesToExistingPasswords(std::string& line, std::ifstream& inFile, std::ofstream& outFile);
+    void sortTextByHash(std::string& line, std::ifstream& inFile, std::ofstream& outFile);
 }
 
 #endif

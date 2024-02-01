@@ -99,15 +99,24 @@ namespace File
         inFile.close();
         outFile.close();
 
-        // std::remove(filePath.c_str()); // Delete the original file
-        // std::rename("data/temp.txt", filePath.c_str()); // Rename temp file to original file name
+        std::remove(filePath.c_str()); // Delete the original file
+        std::rename("data/temp.txt", filePath.c_str()); // Rename temp file to original file name
     }
 
-    std::vector<std::vector<std::string>> fillVector(std::string& line, std::ifstream& inFile)
+    std::vector<std::vector<std::string>> fillVectorFromFile(const std::string filePath)
     {
-        std::cout << "Arrived at vector" << std::endl;
+        std::ifstream file(filePath);
         std::vector<std::vector<std::string>> lines;
-        while(std::getline(inFile, line))
+        std::string line;
+
+        if(!file.is_open()) 
+        {
+            std::cerr << "Unable to open the file" << std::endl;
+            return lines;
+        }
+
+        std::cout << "Arrived at vector" << std::endl;
+        while(std::getline(file, line))
         {
             std::istringstream iss(line);
             std::string pass, hash;
@@ -118,48 +127,15 @@ namespace File
                 lines.push_back(row);
             }
         }
+
         std::cout << "Done with filling vector" << std::endl;
+        file.close();
         return lines;
     }
 
-    std::string binaryHash(const std::string hash)
+    void sortTextByHash(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
     {
-        std::ifstream inFile("data/passhash.txt");
-        std::string line;
-
-        if(!inFile.is_open()) 
-        {
-            std::cerr << "Unable to open the file" << std::endl;
-            return "";
-        }
-
-        std::vector<std::vector<std::string>> lines = fillVector(line, inFile);
-
-        int left = 0;
-        int right = lines.size() - 1;
-
-        while (left <= right) {
-            int mid = left + (right - left) / 2;
-
-            if (lines[mid][1] == hash) {
-                std::cout << "Found it: " << lines[mid][1] << " And their password is: " << lines[mid][0] << std::endl;
-                inFile.close();
-                return lines[mid][0];
-            } else if (lines[mid][1] < hash) {
-                left = mid + 1;
-            } else {
-                right = mid - 1;
-            }
-        }
-
-        inFile.close();
-        std::cout << "Hash not found." << std::endl;
-        return "";
-    }
-
-    void sortByHash(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
-    {
-        std::vector<std::vector<std::string>> lines = fillVector(line, inFile);
+        std::vector<std::vector<std::string>> lines = fillVectorFromFile("filepath");
         std::sort(lines.begin(), lines.end(), [] (std::vector<std::string>& v1, std::vector<std::string>& v2) {
             return v1[1] < v2[1];
         });
@@ -170,7 +146,7 @@ namespace File
         }
     }
 
-    void passwordValidator(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
+    void ensureValidPasswords(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
     {
         while(std::getline(inFile, line))
         {
@@ -212,7 +188,7 @@ namespace File
         }
     }
 
-    void passwordHasher(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
+    void appendHashesToExistingPasswords(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
     {
         while(std::getline(inFile, line))
         {
@@ -222,16 +198,3 @@ namespace File
     }
 
 }
-
-
-/*Läsa in från fil
-Varje lösenord blir 3? nya i en annan fil
-Exempel:
-    hejsan  -> Hejsan123!
-            -> Hejsan321!
-            -> Hejsan2024!
-    aaaaa   -> Aaaaa123!
-            -> Aaaaa321!
-            -> aAAAA123!
-
-*/
