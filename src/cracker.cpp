@@ -2,7 +2,7 @@
 #include <vector>
 #include "../include/file.h"
 
-std::string binaryHash(const std::string hash)
+std::string findPasswordByHash(const std::string hash)
 {
     std::vector<std::vector<std::string>> lines = File::fillVectorFromFile("data/passhash.txt");
     int left = 0;

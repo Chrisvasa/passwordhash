@@ -77,7 +77,7 @@ namespace Application
         ImGui::Begin("Password Cracker");
         ImGui::InputText(_labelPrefix("Enter Hash: ").c_str(), hash, sizeof(hash));
         if(ImGui::Button("Hash")) {
-            clearpass = binaryHash(hash);
+            clearpass = findPasswordByHash(hash);
         }
         ImGui::End();
     }
