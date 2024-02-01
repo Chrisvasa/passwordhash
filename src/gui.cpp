@@ -73,7 +73,7 @@ namespace Application
     {
         ImGui::Begin("Password Cracker");
         if(ImGui::Button("Hash")) {
-            File::passwordHasher("data/100kpass.txt");
+            File::readAndWriteToFile("data/passhash.txt", File::sortByHash);
         }
         ImGui::End();
     }
