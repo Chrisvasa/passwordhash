@@ -32,9 +32,11 @@ namespace Hash
     std::string generateSalt()
     {
         char s[16];
+        char b;
         for (int i = 0; i < 15; i++)
         {
-            s[i] = (48 + (rand() % 75));
+            b = (48 + (rand() % 75));
+            s[i] = b == ';' ? b + 1 : b;
         }
         
         s[15] = '\0';

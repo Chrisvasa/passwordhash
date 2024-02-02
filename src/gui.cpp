@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <chrono>
 #include "../include/gui.h"
 #include "../include/usermanager.h"
 #include "../imgui/imgui.h"
@@ -49,6 +50,8 @@ namespace Application
         {
             if(createUser(std::string(username), std::string(password), security)) {
                 accountCreated = true;
+                memset(username, 0, sizeof(username)); // Maybe not needed? Check if string possible
+                memset(password, 0, sizeof(password)); // Maybe not needed? Check if string possible
             }
         }
         ImGui::SameLine();
@@ -65,8 +68,6 @@ namespace Application
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Text("Account was sucessfully created!");
             ImGui::PopStyleColor();
-            memset(username, 0, sizeof(username)); // Maybe not needed? Check if string possible
-            memset(password, 0, sizeof(password)); // Maybe not needed? Check if string possible
         }
 
         ImGui::End();
@@ -77,7 +78,16 @@ namespace Application
         ImGui::Begin("Password Cracker");
         ImGui::InputText(_labelPrefix("Enter Hash: ").c_str(), hash, sizeof(hash));
         if(ImGui::Button("Hash")) {
+            auto startTime = std::chrono::high_resolution_clock::now();
             clearpass = findPasswordByHash(hash);
+            auto endTime = std::chrono::high_resolution_clock::now();
+            std::cout << "\nINIT Took: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << " milliseconds" << std::endl;
+        }
+        if(ImGui::Button("Generate Hashes")) {
+            File::readAndWriteToFile("data/rockyou.txt", File::appendHashesToExistingPasswords);
+        }
+        if(ImGui::Button("sort Hashes")) {
+            File::readAndWriteToFile("data/tempfile.txt", File::sortTextByHash);
         }
         ImGui::End();
     }

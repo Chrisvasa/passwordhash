@@ -85,7 +85,7 @@ namespace File
     void readAndWriteToFile(const std::string filePath, std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing)
     {
         std::ifstream inFile(filePath);
-        std::ofstream outFile("data/temp.txt");
+        std::ofstream outFile("data/tempfile.txt");
         std::string line;
 
         if(!inFile.is_open() || !outFile.is_open()) 
@@ -99,10 +99,11 @@ namespace File
         inFile.close();
         outFile.close();
 
-        std::remove(filePath.c_str()); // Delete the original file
-        std::rename("data/temp.txt", filePath.c_str()); // Rename temp file to original file name
+        // std::remove(filePath.c_str()); // Delete the original file
+        // std::rename("data/temp.txt", filePath.c_str()); // Rename temp file to original file name
     }
 
+    // REMOVE DONT WORK WITH VECTORS STUPID
     std::vector<std::vector<std::string>> fillVectorFromFile(const std::string filePath)
     {
         std::ifstream file(filePath);
@@ -135,7 +136,7 @@ namespace File
 
     void sortTextByHash(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
     {
-        std::vector<std::vector<std::string>> lines = fillVectorFromFile("filepath");
+        std::vector<std::vector<std::string>> lines = fillVectorFromFile("data/tempfile.txt");
         std::sort(lines.begin(), lines.end(), [] (std::vector<std::string>& v1, std::vector<std::string>& v2) {
             return v1[1] < v2[1];
         });
