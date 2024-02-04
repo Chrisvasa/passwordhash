@@ -77,18 +77,25 @@ namespace Application
         ImGui::Begin("Password Cracker");
         ImGui::InputText(_labelPrefix("Enter Hash: ").c_str(), hash, sizeof(hash));
         if(ImGui::Button("Generate Hashes")) {
-            File::readAndWriteToFile("data/rockyou.txt", File::appendHashesToExistingPasswords);
+            File::readAndWriteToFile("data/rockyou.txt", "data/cracked_temp.txt", File::appendHashesToExistingPasswords);
             // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
         }
         if(ImGui::Button("Sort Hashes")) {
-            File::readAndWriteToFile("data/tempfile.txt", File::sortTextByHash);
+            File::readAndWriteToFile("data/cracked.txt", "data/crack.txt", File::sortTextByHash);
             // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
         }
         if(ImGui::Button("Find password")) {
             auto startTime = std::chrono::high_resolution_clock::now();
-            File::binarySearchInFile("data/passhash.txt", hash);
+            File::binarySearchInFile("data/cracked.txt", hash);
             auto endTime = std::chrono::high_resolution_clock::now();
-            std::cout << "\nFinding password took: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << " milliseconds" << std::endl;
+            std::cout << "\nFinding password took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
+        }
+        if(ImGui::Button("Find matches")) {
+            std::cout << "Finding matches.." << std::endl;
+            auto startTime = std::chrono::high_resolution_clock::now();
+            File::findMatches();
+            auto endTime = std::chrono::high_resolution_clock::now();
+            std::cout << "\nFinding matches took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
         }
         ImGui::End();
     }

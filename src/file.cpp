@@ -19,7 +19,6 @@ namespace File
     const std::string UNSAFE_USERS {"data/unsafe_users.txt"};
     constexpr char DELIMITER {';'};
 
-
     bool binarySearchInFile(const std::string& path, const std::string& targetVal)
     {
         std::ifstream file(path);
@@ -47,13 +46,12 @@ namespace File
             std::istringstream iss(line);
             std::string username, password;
 
-            std::cout << line << std::endl;
-
-            if(std::getline(iss, username, ';') && std::getline(iss, password))
+            if(std::getline(iss, username, DELIMITER) && std::getline(iss, password))
             {
-                if (password == targetVal || username == targetVal)
+                if (password == targetVal)
                 {
-                    std::cout << "Found: " << username << " with the password: " << password << std::endl;
+                    // std::cout << "Found: " << username << " with the password: " << password << std::endl;
+                    file.close();
                     return true;
                 }
                 else if (password < targetVal)
@@ -62,7 +60,7 @@ namespace File
                     end = mid - 1;
             }
         }
-
+        file.close();
         return false;
     }
 
@@ -116,10 +114,10 @@ namespace File
         std::cout << "User was sucessfully saved." << std::endl;
     }
 
-    void readAndWriteToFile(const std::string filePath, std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing)
+    void readAndWriteToFile(const std::string iFilePath, const std::string oFilePath, std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing)
     {
-        std::ifstream inFile(filePath);
-        std::ofstream outFile("data/tempfile.txt");
+        std::ifstream inFile(iFilePath);
+        std::ofstream outFile(oFilePath);
         std::string line;
 
         if(!inFile.is_open() || !outFile.is_open()) 
@@ -137,47 +135,63 @@ namespace File
         // std::rename("data/temp.txt", filePath.c_str()); // Rename temp file to original file name
     }
 
-    // REMOVE DONT WORK WITH VECTORS STUPID
-    std::vector<std::vector<std::string>> fillVectorFromFile(const std::string filePath)
+    void findMatches()
     {
-        std::ifstream file(filePath);
-        std::vector<std::vector<std::string>> lines;
+        std::ifstream file("data/tocrack.txt");
         std::string line;
-
-        if(!file.is_open()) 
+        int count = 0;
+        if(!file.is_open())
         {
-            std::cerr << "Unable to open the file" << std::endl;
-            return lines;
+            std::cout << "file wont open xD" << std::endl;
+            return;
         }
+
+        while(std::getline(file, line))
+        {
+            std::istringstream iss(line);
+            std::string pass, hash;
+            if(std::getline(iss, hash))
+            {
+                if (binarySearchInFile("data/crack.txt", hash))
+                    count++;
+            }
+        }
+
+        std::cout << "Matches found: " << count << std::endl;
+        file.close();
+    }
+
+    // REMOVE DONT WORK WITH VECTORS STUPID
+    std::vector<std::pair<std::string, std::string>> fillPairFromFile(std::ifstream& file)
+    {
+        std::vector<std::pair<std::string, std::string>> lines;
+        std::string line;
 
         std::cout << "Arrived at vector" << std::endl;
         while(std::getline(file, line))
         {
             std::istringstream iss(line);
             std::string pass, hash;
-
-            if(std::getline(iss, pass, DELIMITER) && std::getline(iss, hash))
+            if(std::getline(iss, pass, ';') && std::getline(iss, hash))
             {
-                std::vector<std::string> row { pass, hash };
+                std::pair<std::string, std::string> row { pass, hash };
                 lines.push_back(row);
             }
         }
 
         std::cout << "Done with filling vector" << std::endl;
-        file.close();
         return lines;
     }
 
     void sortTextByHash(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
     {
-        std::vector<std::vector<std::string>> lines = fillVectorFromFile("data/tempfile.txt");
-        std::sort(lines.begin(), lines.end(), [] (std::vector<std::string>& v1, std::vector<std::string>& v2) {
-            return v1[1] < v2[1];
+        std::vector<std::pair<std::string, std::string>> pairs = fillPairFromFile(inFile);
+        std::sort(pairs.begin(), pairs.end(), [] (std::pair<std::string, std::string>& v1, std::pair<std::string, std::string>& v2) {
+            return v1.second < v2.second;
         });
-
-        for(int i = 0; i < lines.size(); i++)
+        for(auto& pair : pairs)
         {
-            outFile << lines[i][0] << DELIMITER << lines[i][1] << std::endl;
+            outFile << pair.first << ';' << pair.second << std::endl;
         }
     }
 
