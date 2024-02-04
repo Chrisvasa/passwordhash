@@ -1,7 +1,6 @@
 #ifndef _VALIDATE_H_
 #define _VALIDATE_H_
 
-#include <functional>
 #include <iostream>
 
 bool isValidEmail(const std::string& userName);

@@ -1,22 +1,72 @@
 #include <algorithm>
 #include <iostream>
-#include <vector>
 #include <fstream>
-#include <iomanip>
+#include <sstream>
 #include <optional>
 #include <cctype>
 #include <functional>
+#include <string>
 #include <openssl/evp.h>
 #include "../include/file.h"
 #include "../include/validate.h"
 #include "../include/hash.h"
 
+
 // Manages all file access functions
 namespace File
 {
+    const std::string USERFILE {"data/users.txt"};
+    const std::string UNSAFE_USERS {"data/unsafe_users.txt"};
+    constexpr char DELIMITER {';'};
+
+    bool binarySearchInFile(const std::string& path, const std::string& targetVal)
+    {
+        std::ifstream file(path);
+        if(!file.is_open())
+        {
+            std::cout << "Couldn't open file" << std::endl;
+            return 1;
+        }
+
+        int start = 0;
+        file.seekg(0, std::ios::end);
+        int end = file.tellg();
+        std::string line;
+
+        while(start <= end)
+        {
+            int mid = start + (end - start) / 2;
+            file.seekg(mid);
+
+            if (mid != 0) { // If not at the start of the file
+                std::getline(file, line); // Read and discard partial line if mid is in the middle of a line
+            }
+
+            std::getline(file, line);
+            std::istringstream iss(line);
+            std::string username, password;
+
+            if(std::getline(iss, username, DELIMITER) && std::getline(iss, password))
+            {
+                if (password == targetVal)
+                {
+                    // std::cout << "Found: " << username << " with the password: " << password << std::endl;
+                    file.close();
+                    return true;
+                }
+                else if (password < targetVal)
+                    start = mid + 1;
+                else
+                    end = mid - 1;
+            }
+        }
+        file.close();
+        return false;
+    }
+
     std::optional<User> getUserFromFile(const std::string& targetUser)
     {
-        std::ifstream file("data/users.txt");
+        std::ifstream file(USERFILE);
         std::string line;
 
         if(!file.is_open()) 
@@ -30,7 +80,7 @@ namespace File
             std::istringstream iss(line);
             std::string username, salt, password;
 
-            if(std::getline(iss, username, ';') && std::getline(iss, salt, ';') && std::getline(iss, password))
+            if(std::getline(iss, username, DELIMITER) && std::getline(iss, salt, DELIMITER) && std::getline(iss, password))
             {
                 if(username == targetUser)
                 {
@@ -42,27 +92,12 @@ namespace File
         return std::nullopt;
     }
 
-    bool isEmptyFile(const std::string& filename)
-    {
-        std::ifstream file(filename);
-        if(!file)
-        {
-            std::cerr << "File not found." << std::endl;
-            exit(EXIT_FAILURE);
-        }
-
-        return file.peek() == std::ifstream::traits_type::eof();
-    }
-
     void saveUserToFile(User& user, const std::string& pass)
     {
-        std::string filename = "data/users.txt";
         std::ofstream file;
 
-        file.open(filename, std::ios::app);
-        if(!isEmptyFile(filename))
-            file << std::endl;
-        file << user.getUserName() << ";" << user.getSalt() << ";" << pass;
+        file.open(USERFILE, std::ios::app);
+        file << user.getUserName() << DELIMITER << user.getSalt() << DELIMITER << pass << std::endl;
         file.close();
 
         std::cout << "User was sucessfully saved." << std::endl;
@@ -70,22 +105,19 @@ namespace File
 
     void saveUnsafeToFile(User& user, const std::string& pass)
     {
-        std::string filename = "data/unsafe_users.txt";
         std::ofstream file;
 
-        file.open(filename, std::ios::app);
-        if(!isEmptyFile(filename))
-            file << std::endl;
-        file << user.getUserName() << ";" << pass;
+        file.open(UNSAFE_USERS, std::ios::app);
+        file << user.getUserName() << DELIMITER << pass << std::endl;;
         file.close();
 
         std::cout << "User was sucessfully saved." << std::endl;
     }
 
-    void readAndWriteToFile(const std::string filePath, std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing)
+    void readAndWriteToFile(const std::string iFilePath, const std::string oFilePath, std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing)
     {
-        std::ifstream inFile(filePath);
-        std::ofstream outFile("data/tempfile.txt");
+        std::ifstream inFile(iFilePath);
+        std::ofstream outFile(oFilePath);
         std::string line;
 
         if(!inFile.is_open() || !outFile.is_open()) 
@@ -103,50 +135,67 @@ namespace File
         // std::rename("data/temp.txt", filePath.c_str()); // Rename temp file to original file name
     }
 
-    // REMOVE DONT WORK WITH VECTORS STUPID
-    std::vector<std::vector<std::string>> fillVectorFromFile(const std::string filePath)
+    void findMatches()
     {
-        std::ifstream file(filePath);
-        std::vector<std::vector<std::string>> lines;
+        std::ifstream file("data/tocrack.txt");
         std::string line;
-
-        if(!file.is_open()) 
+        int count = 0;
+        if(!file.is_open())
         {
-            std::cerr << "Unable to open the file" << std::endl;
-            return lines;
+            std::cout << "file wont open xD" << std::endl;
+            return;
         }
+
+        while(std::getline(file, line))
+        {
+            std::istringstream iss(line);
+            std::string pass, hash;
+            if(std::getline(iss, hash))
+            {
+                if (binarySearchInFile("data/crack.txt", hash))
+                    count++;
+            }
+        }
+
+        std::cout << "Matches found: " << count << std::endl;
+        file.close();
+    }
+
+    // REMOVE DONT WORK WITH VECTORS STUPID
+    std::vector<std::pair<std::string, std::string>> fillPairFromFile(std::ifstream& file)
+    {
+        std::vector<std::pair<std::string, std::string>> lines;
+        std::string line;
 
         std::cout << "Arrived at vector" << std::endl;
         while(std::getline(file, line))
         {
             std::istringstream iss(line);
             std::string pass, hash;
-
             if(std::getline(iss, pass, ';') && std::getline(iss, hash))
             {
-                std::vector<std::string> row { pass, hash };
+                std::pair<std::string, std::string> row { pass, hash };
                 lines.push_back(row);
             }
         }
 
         std::cout << "Done with filling vector" << std::endl;
-        file.close();
         return lines;
     }
 
     void sortTextByHash(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
     {
-        std::vector<std::vector<std::string>> lines = fillVectorFromFile("data/tempfile.txt");
-        std::sort(lines.begin(), lines.end(), [] (std::vector<std::string>& v1, std::vector<std::string>& v2) {
-            return v1[1] < v2[1];
+        std::vector<std::pair<std::string, std::string>> pairs = fillPairFromFile(inFile);
+        std::sort(pairs.begin(), pairs.end(), [] (std::pair<std::string, std::string>& v1, std::pair<std::string, std::string>& v2) {
+            return v1.second < v2.second;
         });
-
-        for(int i = 0; i < lines.size(); i++)
+        for(auto& pair : pairs)
         {
-            outFile << lines[i][0] << ";" << lines[i][1] << std::endl;
+            outFile << pair.first << ';' << pair.second << std::endl;
         }
     }
 
+    // REWRITE THIS ABOMINATION
     void ensureValidPasswords(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
     {
         while(std::getline(inFile, line))
@@ -193,7 +242,7 @@ namespace File
     {
         while(std::getline(inFile, line))
         {
-            outFile << line << ";";
+            outFile << line << DELIMITER;
             outFile << Hash::hashPassword(line, false) << std::endl;;
         }
     }

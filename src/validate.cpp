@@ -1,5 +1,3 @@
-#include <functional>
-#include <iostream>
 #include <regex>
 
 bool isValidEmail(const std::string& userName)
