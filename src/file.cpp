@@ -1,22 +1,74 @@
 #include <algorithm>
 #include <iostream>
-#include <vector>
 #include <fstream>
-#include <iomanip>
+#include <sstream>
 #include <optional>
 #include <cctype>
 #include <functional>
+#include <string>
 #include <openssl/evp.h>
 #include "../include/file.h"
 #include "../include/validate.h"
 #include "../include/hash.h"
 
+
 // Manages all file access functions
 namespace File
 {
+    const std::string USERFILE {"data/users.txt"};
+    const std::string UNSAFE_USERS {"data/unsafe_users.txt"};
+    constexpr char DELIMITER {';'};
+
+
+    bool binarySearchInFile(const std::string& path, const std::string& targetVal)
+    {
+        std::ifstream file(path);
+        if(!file.is_open())
+        {
+            std::cout << "Couldn't open file" << std::endl;
+            return 1;
+        }
+
+        int start = 0;
+        file.seekg(0, std::ios::end);
+        int end = file.tellg();
+        std::string line;
+
+        while(start <= end)
+        {
+            int mid = start + (end - start) / 2;
+            file.seekg(mid);
+
+            if (mid != 0) { // If not at the start of the file
+                std::getline(file, line); // Read and discard partial line if mid is in the middle of a line
+            }
+
+            std::getline(file, line);
+            std::istringstream iss(line);
+            std::string username, password;
+
+            std::cout << line << std::endl;
+
+            if(std::getline(iss, username, ';') && std::getline(iss, password))
+            {
+                if (password == targetVal || username == targetVal)
+                {
+                    std::cout << "Found: " << username << " with the password: " << password << std::endl;
+                    return true;
+                }
+                else if (password < targetVal)
+                    start = mid + 1;
+                else
+                    end = mid - 1;
+            }
+        }
+
+        return false;
+    }
+
     std::optional<User> getUserFromFile(const std::string& targetUser)
     {
-        std::ifstream file("data/users.txt");
+        std::ifstream file(USERFILE);
         std::string line;
 
         if(!file.is_open()) 
@@ -30,7 +82,7 @@ namespace File
             std::istringstream iss(line);
             std::string username, salt, password;
 
-            if(std::getline(iss, username, ';') && std::getline(iss, salt, ';') && std::getline(iss, password))
+            if(std::getline(iss, username, DELIMITER) && std::getline(iss, salt, DELIMITER) && std::getline(iss, password))
             {
                 if(username == targetUser)
                 {
@@ -42,27 +94,12 @@ namespace File
         return std::nullopt;
     }
 
-    bool isEmptyFile(const std::string& filename)
-    {
-        std::ifstream file(filename);
-        if(!file)
-        {
-            std::cerr << "File not found." << std::endl;
-            exit(EXIT_FAILURE);
-        }
-
-        return file.peek() == std::ifstream::traits_type::eof();
-    }
-
     void saveUserToFile(User& user, const std::string& pass)
     {
-        std::string filename = "data/users.txt";
         std::ofstream file;
 
-        file.open(filename, std::ios::app);
-        if(!isEmptyFile(filename))
-            file << std::endl;
-        file << user.getUserName() << ";" << user.getSalt() << ";" << pass;
+        file.open(USERFILE, std::ios::app);
+        file << user.getUserName() << DELIMITER << user.getSalt() << DELIMITER << pass << std::endl;
         file.close();
 
         std::cout << "User was sucessfully saved." << std::endl;
@@ -70,13 +107,10 @@ namespace File
 
     void saveUnsafeToFile(User& user, const std::string& pass)
     {
-        std::string filename = "data/unsafe_users.txt";
         std::ofstream file;
 
-        file.open(filename, std::ios::app);
-        if(!isEmptyFile(filename))
-            file << std::endl;
-        file << user.getUserName() << ";" << pass;
+        file.open(UNSAFE_USERS, std::ios::app);
+        file << user.getUserName() << DELIMITER << pass << std::endl;;
         file.close();
 
         std::cout << "User was sucessfully saved." << std::endl;
@@ -122,7 +156,7 @@ namespace File
             std::istringstream iss(line);
             std::string pass, hash;
 
-            if(std::getline(iss, pass, ';') && std::getline(iss, hash))
+            if(std::getline(iss, pass, DELIMITER) && std::getline(iss, hash))
             {
                 std::vector<std::string> row { pass, hash };
                 lines.push_back(row);
@@ -143,10 +177,11 @@ namespace File
 
         for(int i = 0; i < lines.size(); i++)
         {
-            outFile << lines[i][0] << ";" << lines[i][1] << std::endl;
+            outFile << lines[i][0] << DELIMITER << lines[i][1] << std::endl;
         }
     }
 
+    // REWRITE THIS ABOMINATION
     void ensureValidPasswords(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
     {
         while(std::getline(inFile, line))
@@ -193,7 +228,7 @@ namespace File
     {
         while(std::getline(inFile, line))
         {
-            outFile << line << ";";
+            outFile << line << DELIMITER;
             outFile << Hash::hashPassword(line, false) << std::endl;;
         }
     }

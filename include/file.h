@@ -7,6 +7,7 @@
 
 namespace File
 {
+    bool binarySearchInFile(const std::string& path, const std::string& targetVal);
     std::optional<User> getUserFromFile(const std::string& targetUser);
     void saveUserToFile(User& user, const std::string& pass);
     void saveUnsafeToFile(User& user, const std::string& pass);

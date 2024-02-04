@@ -5,7 +5,6 @@
 #include "../include/usermanager.h"
 #include "../imgui/imgui.h"
 #include "../include/file.h"
-#include "../include/cracker.h"
 
 // This class manages the different ImGui components and their input
 namespace Application
@@ -77,17 +76,19 @@ namespace Application
     {
         ImGui::Begin("Password Cracker");
         ImGui::InputText(_labelPrefix("Enter Hash: ").c_str(), hash, sizeof(hash));
-        if(ImGui::Button("Hash")) {
-            auto startTime = std::chrono::high_resolution_clock::now();
-            clearpass = findPasswordByHash(hash);
-            auto endTime = std::chrono::high_resolution_clock::now();
-            std::cout << "\nINIT Took: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << " milliseconds" << std::endl;
-        }
         if(ImGui::Button("Generate Hashes")) {
             File::readAndWriteToFile("data/rockyou.txt", File::appendHashesToExistingPasswords);
+            // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
         }
-        if(ImGui::Button("sort Hashes")) {
+        if(ImGui::Button("Sort Hashes")) {
             File::readAndWriteToFile("data/tempfile.txt", File::sortTextByHash);
+            // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
+        }
+        if(ImGui::Button("Find password")) {
+            auto startTime = std::chrono::high_resolution_clock::now();
+            File::binarySearchInFile("data/passhash.txt", hash);
+            auto endTime = std::chrono::high_resolution_clock::now();
+            std::cout << "\nFinding password took: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << " milliseconds" << std::endl;
         }
         ImGui::End();
     }
