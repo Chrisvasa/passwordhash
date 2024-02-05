@@ -18,6 +18,7 @@ namespace Application
     char hash[50] = {}; 
     char password[50] = {};
     std::string clearpass = {};
+    std::string t;
     bool accountCreated = false;
     bool loginFailed = false;
     bool security = false;
@@ -81,12 +82,12 @@ namespace Application
             // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
         }
         if(ImGui::Button("Sort Hashes")) {
-            File::readAndWriteToFile("data/cracked.txt", "data/crack.txt", File::sortTextByHash);
+            File::readAndWriteToFile("data/cracked_temp.txt", "data/crack.txt", File::sortTextByHash);
             // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
         }
         if(ImGui::Button("Find password")) {
             auto startTime = std::chrono::high_resolution_clock::now();
-            File::binarySearchInFile("data/cracked.txt", hash);
+            accountCreated = File::binarySearchInFile("data/crack.txt", hash);
             auto endTime = std::chrono::high_resolution_clock::now();
             std::cout << "\nFinding password took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
         }
@@ -96,6 +97,12 @@ namespace Application
             File::findMatches();
             auto endTime = std::chrono::high_resolution_clock::now();
             std::cout << "\nFinding matches took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
+        }
+        if(accountCreated)
+        {
+          ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+          ImGui::Text(("The password is: " + t).c_str());
+          ImGui::PopStyleColor();
         }
         ImGui::End();
     }

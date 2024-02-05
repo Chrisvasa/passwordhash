@@ -2,3 +2,6 @@
 bin/
 *.exe
 imgui.ini
+data/crack.txt
+data/rockyou.txt
+data/cracked_temp.txt
