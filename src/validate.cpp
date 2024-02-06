@@ -1,4 +1,6 @@
 #include <regex>
+#include <algorithm>
+#include <cctype>
 
 bool isValidEmail(const std::string& userName)
 {
@@ -12,23 +14,24 @@ bool isValidPassword(const std::string& password)
     return (password.length() > 7 && std::regex_match(password, pattern));
 }
 
-// USED FOR PASSWORD GENERATION
-bool containsNumbers(const std::string& str) 
+bool containsDigit(const std::string& str) 
 {
-    return std::regex_search(str, std::regex("\\d"));
+    return std::any_of(str.begin(), str.end(), ::isdigit);
 }
 
 bool containsUppercase(const std::string& str) 
 {
-    return std::regex_search(str, std::regex("[A-Z]"));
+    return std::any_of(str.begin(), str.end(), ::isupper);
 }
 
 bool containsLowercase(const std::string& str) 
 {
-    return std::regex_search(str, std::regex("[a-z]"));
+    return std::any_of(str.begin(), str.end(), ::islower);
 }
 
 bool containsSymbols(const std::string& str) 
 {
-    return std::regex_search(str, std::regex("[^\\w\\s]")); // or use "[\\.,\\?!]" for specific symbols
+    return std::any_of(str.begin(), str.end(), [](char c) {
+        return !std::isalnum(c) && !std::isspace(c);
+    });
 }

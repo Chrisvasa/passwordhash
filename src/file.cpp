@@ -38,22 +38,23 @@ namespace File
             int mid = start + (end - start) / 2;
             file.seekg(mid);
 
-            if (mid != 0) { // If not at the start of the file
-                std::getline(file, line); // Read and discard partial line if mid is in the middle of a line
+            // If not at the start of the file
+            if (mid != 0) {
+                std::getline(file, line);
             }
 
             std::getline(file, line);
             std::istringstream iss(line);
-            std::string username, password;
+            std::string password, hash;
 
-            if(std::getline(iss, username, DELIMITER) && std::getline(iss, password))
+            if(std::getline(iss, password, DELIMITER) && std::getline(iss, hash))
             {
-                if (password == targetVal)
+                if (hash == targetVal)
                 {
                     file.close();
                     return true;
                 }
-                else if (password < targetVal)
+                else if (hash < targetVal)
                     start = mid + 1;
                 else
                     end = mid - 1;
@@ -82,24 +83,24 @@ namespace File
             int mid = start + (end - start) / 2;
             file.seekg(mid);
 
-            if (mid != 0) { // If not at the start of the file
-                std::getline(file, line); // Read and discard partial line if mid is in the middle of a line
+            // If not at the start of the file
+            if (mid != 0) {
+                std::getline(file, line);
             }
 
             std::getline(file, line);
             std::istringstream iss(line);
-            std::string username, password;
+            std::string password, hash;
 
-            if(std::getline(iss, username, DELIMITER) && std::getline(iss, password))
+            if(std::getline(iss, password, DELIMITER) && std::getline(iss, hash))
             {
-                if (password == targetVal)
+                if (hash == targetVal)
                 {
-                    // std::cout << "Found: " << username << " with the password: " << password << std::endl;
-                    foundVal = username;
+                    foundVal = password;
                     file.close();
                     return true;
                 }
-                else if (password < targetVal)
+                else if (hash < targetVal)
                     start = mid + 1;
                 else
                     end = mid - 1;
@@ -200,7 +201,6 @@ namespace File
                     count++;
         }
 
-        // std::cout << "Matches found: " << count << std::endl;
         file.close();
         return count;
     }
@@ -248,7 +248,7 @@ namespace File
             {
                 if(!isValidPassword(line))
                 {
-                    if(!containsNumbers(line))
+                    if(!containsDigit(line))
                     {
                         line += "123";
                     }
@@ -263,7 +263,7 @@ namespace File
                     }
                     if(!containsUppercase(line))
                     {
-                        if(!containsNumbers(line.substr(0,1)))
+                        if(!containsDigit(line.substr(0,1)))
                             line[0] = std::toupper(line[0]);
                         else
                         {
