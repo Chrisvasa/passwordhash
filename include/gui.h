@@ -7,17 +7,19 @@ public:
     Application();
     void RenderUI(void);
 private:
-    char username[50] = {};
+    std::string username = {};
     std::string hash = {};
     std::string solved = {};
     std::string input = {};
-    char password[50] = {};
-    std::string clearpass, t = {};
-    bool accountCreated, loginFailed, security, passwordFound;
+    std::string password = {};
+    bool accountCreated = false;
+    bool loginFailed = false;
+    bool security = false;
+    bool passwordFound = false;
 
     void LoginWindow(void);
     void PassCrackerWindow(void);
-    static std::string _labelPrefix(const char* const label);
+    std::string _labelPrefix(const char* const label);
 };
 
 #endif

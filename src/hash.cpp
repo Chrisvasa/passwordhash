@@ -1,5 +1,6 @@
 #include <openssl/evp.h>
 #include <iomanip>
+#include <random>
 #include "../include/hash.h"
 
 namespace Hash
@@ -31,15 +32,21 @@ namespace Hash
 
     std::string generateSalt()
     {
-        char s[16];
-        char b;
-        for (int i = 0; i < 15; i++)
+        const std::string chars = 
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+
+        std::string salt;
+
+        std::minstd_rand randomNum(std::random_device{}());
+        std::uniform_int_distribution<> dist(0, chars.size() - 1);
+
+        for (int i = 0; i < 16; i++)
         {
-            b = (48 + (rand() % 75));
-            s[i] = b == ';' ? b + 1 : b;
+            salt += chars[dist(randomNum)];
         }
-        
-        s[15] = '\0';
-        return s;
+
+        return salt;
     }
 }
