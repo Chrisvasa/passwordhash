@@ -85,7 +85,7 @@ namespace Application
             // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
         }
         if(ImGui::Button("Sort Hashes")) {
-          if(input == "") // File for sorting hashes - STANDARD IS users.txt 
+          if(input.empty())// File for sorting hashes - STANDARD IS users.txt 
             File::readAndWriteToFile(File::sortTextByHash);
           else
            File::readAndWriteToFile(File::sortTextByHash, input);
@@ -93,7 +93,7 @@ namespace Application
         }
         if(ImGui::Button("Find password")) {
             auto startTime = std::chrono::high_resolution_clock::now();
-            if(input == "") // File for binarySearch - STANDARD IS crack.txt
+            if(input.empty()) // File for binarySearch - STANDARD IS crack.txt
               passwordFound = File::binarySearchInFile(hash, solved);
             else
               passwordFound = File::binarySearchInFile(hash, solved, input);
@@ -104,7 +104,7 @@ namespace Application
             std::cout << "Finding matches.." << std::endl;
             int count = 0;
             auto startTime = std::chrono::high_resolution_clock::now();
-            if(input == "") // File for passwords to crack - STANDARD IS tocrack.txt 
+            if(input.empty()) // File for passwords to crack - STANDARD IS tocrack.txt 
               count = File::findMatches();
             else
               count = File::findMatches(input);
@@ -115,7 +115,7 @@ namespace Application
         if(passwordFound)
         {
           ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-          ImGui::Text(("The password is: " + solved).c_str());
+          ImGui::Text("%s", ("The password is: " + solved).c_str());
           ImGui::PopStyleColor();
         }
         ImGui::End();
@@ -126,7 +126,7 @@ namespace Application
         float width = ImGui::CalcItemWidth();
 
         float x = ImGui::GetCursorPosX();
-        ImGui::Text(label); 
+        ImGui::Text("%s", label); 
         ImGui::SameLine(); 
         ImGui::SetCursorPosX(x + width * 0.5f + ImGui::GetStyle().ItemInnerSpacing.x);
         ImGui::SetNextItemWidth(-1);
