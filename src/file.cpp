@@ -286,7 +286,7 @@ namespace File
         while(std::getline(inFile, line))
         {
             outFile << line << DELIMITER;
-            outFile << Hash::HashPassword(line, false) << std::endl;;
+            outFile << Hash::hashPassword(line, false) << std::endl;;
         }
     }
 

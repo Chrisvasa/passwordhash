@@ -5,8 +5,8 @@
 
 namespace Hash
 {
-    std::string HashPassword(const std::string& password, bool security);
-    std::string GenerateSalt();
+    std::string hashPassword(const std::string& password, bool security);
+    std::string generateSalt();
 }
 
 #endif

@@ -12,7 +12,7 @@ public:
     std::string getSalt() const;
     bool isSecure() const;
     // void setPassword(std::string pass);
-    bool VerifyLogin(const std::string& user,const std::string& pass);
+    bool verifyLogin(const std::string& user,const std::string& pass);
 };
 
 #endif
