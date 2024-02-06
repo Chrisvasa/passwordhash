@@ -4,6 +4,7 @@
 #include "../include/gui.h"
 #include "../include/usermanager.h"
 #include "../imgui/imgui.h"
+#include "../imgui/imgui_stdlib.h"
 #include "../include/file.h"
 
 // This class manages the different ImGui components and their input
@@ -15,13 +16,12 @@ namespace Application
 
     // CRINGE GLOBAL VARIABLE
     char username[50] = {};
-    char hash[50] = {}; 
+    std::string hash = {};
+    std::string solved = {};
+    std::string input = {};
     char password[50] = {};
-    std::string clearpass = {};
-    std::string t;
-    bool accountCreated = false;
-    bool loginFailed = false;
-    bool security = false;
+    std::string clearpass, t = {};
+    bool accountCreated, loginFailed, security, passwordFound;
 
     void RenderUI(void)
     {
@@ -76,32 +76,46 @@ namespace Application
     void PassCrackerWindow(void)
     {
         ImGui::Begin("Password Cracker");
-        ImGui::InputText(_labelPrefix("Enter Hash: ").c_str(), hash, sizeof(hash));
+        ImGui::InputText(_labelPrefix("Passowrd/Hash").c_str(), &hash);
+        ImGui::InputText(_labelPrefix("Input filepath:").c_str(), &input);
+
         if(ImGui::Button("Generate Hashes")) {
-            File::readAndWriteToFile("data/rockyou.txt", "data/cracked_temp.txt", File::appendHashesToExistingPasswords);
+          // SHOULD ONLY BE USED WITH FRESH PASSWORD FILE - Will append hash to whatever text is infront of it.
+          File::readAndWriteToFile(File::appendHashesToExistingPasswords, input);
             // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
         }
         if(ImGui::Button("Sort Hashes")) {
-            File::readAndWriteToFile("data/cracked_temp.txt", "data/crack.txt", File::sortTextByHash);
+          if(input.empty())// File for sorting hashes - STANDARD IS users.txt 
+            File::readAndWriteToFile(File::sortTextByHash);
+          else
+           File::readAndWriteToFile(File::sortTextByHash, input);
             // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
         }
         if(ImGui::Button("Find password")) {
             auto startTime = std::chrono::high_resolution_clock::now();
-            accountCreated = File::binarySearchInFile("data/crack.txt", hash);
+            if(input.empty()) // File for binarySearch - STANDARD IS crack.txt
+              passwordFound = File::binarySearchInFile(hash, solved);
+            else
+              passwordFound = File::binarySearchInFile(hash, solved, input);
             auto endTime = std::chrono::high_resolution_clock::now();
             std::cout << "\nFinding password took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
         }
         if(ImGui::Button("Find matches")) {
             std::cout << "Finding matches.." << std::endl;
+            int count = 0;
             auto startTime = std::chrono::high_resolution_clock::now();
-            File::findMatches();
+            if(input.empty()) // File for passwords to crack - STANDARD IS tocrack.txt 
+              count = File::findMatches();
+            else
+              count = File::findMatches(input);
             auto endTime = std::chrono::high_resolution_clock::now();
             std::cout << "\nFinding matches took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
+            std::cout << "Found: " << count << std::endl;
         }
-        if(accountCreated)
+        if(passwordFound)
         {
           ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-          ImGui::Text(("The password is: " + t).c_str());
+          ImGui::Text("%s", ("The password is: " + solved).c_str());
           ImGui::PopStyleColor();
         }
         ImGui::End();
@@ -112,7 +126,7 @@ namespace Application
         float width = ImGui::CalcItemWidth();
 
         float x = ImGui::GetCursorPosX();
-        ImGui::Text(label); 
+        ImGui::Text("%s", label); 
         ImGui::SameLine(); 
         ImGui::SetCursorPosX(x + width * 0.5f + ImGui::GetStyle().ItemInnerSpacing.x);
         ImGui::SetNextItemWidth(-1);

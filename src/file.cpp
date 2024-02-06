@@ -19,7 +19,51 @@ namespace File
     const std::string UNSAFE_USERS {"data/unsafe_users.txt"};
     constexpr char DELIMITER {';'};
 
-    bool binarySearchInFile(const std::string& path, const std::string& targetVal)
+    bool binarySearchInFile(const std::string& targetVal, const std::string& path)
+    {
+        std::ifstream file(path);
+        if(!file.is_open())
+        {
+            std::cout << "Couldn't open file" << std::endl;
+            return 1;
+        }
+
+        int start = 0;
+        file.seekg(0, std::ios::end);
+        int end = file.tellg();
+        std::string line;
+
+        while(start <= end)
+        {
+            int mid = start + (end - start) / 2;
+            file.seekg(mid);
+
+            if (mid != 0) { // If not at the start of the file
+                std::getline(file, line); // Read and discard partial line if mid is in the middle of a line
+            }
+
+            std::getline(file, line);
+            std::istringstream iss(line);
+            std::string username, password;
+
+            if(std::getline(iss, username, DELIMITER) && std::getline(iss, password))
+            {
+                if (password == targetVal)
+                {
+                    file.close();
+                    return true;
+                }
+                else if (password < targetVal)
+                    start = mid + 1;
+                else
+                    end = mid - 1;
+            }
+        }
+        file.close();
+        return false;
+    }
+
+    bool binarySearchInFile(const std::string& targetVal, std::string& foundVal, const std::string& path)
     {
         std::ifstream file(path);
         if(!file.is_open())
@@ -51,6 +95,7 @@ namespace File
                 if (password == targetVal)
                 {
                     // std::cout << "Found: " << username << " with the password: " << password << std::endl;
+                    foundVal = username;
                     file.close();
                     return true;
                 }
@@ -114,10 +159,10 @@ namespace File
         std::cout << "User was sucessfully saved." << std::endl;
     }
 
-    void readAndWriteToFile(const std::string iFilePath, const std::string oFilePath, std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing)
+    void readAndWriteToFile(std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing, const std::string& inPath, const std::string& outPath)
     {
-        std::ifstream inFile(iFilePath);
-        std::ofstream outFile(oFilePath);
+        std::ifstream inFile(inPath);
+        std::ofstream outFile(outPath);
         std::string line;
 
         if(!inFile.is_open() || !outFile.is_open()) 
@@ -131,19 +176,19 @@ namespace File
         inFile.close();
         outFile.close();
 
-        // std::remove(filePath.c_str()); // Delete the original file
-        // std::rename("data/temp.txt", filePath.c_str()); // Rename temp file to original file name
+        std::remove(inPath.c_str()); // Delete the original file
+        std::rename(outPath.c_str(), inPath.c_str()); // Rename temp file to original file name
     }
 
-    void findMatches()
+    int findMatches(const std::string& path)
     {
-        std::ifstream file("data/tocrack.txt");
+        std::ifstream file(path);
         std::string line;
         int count = 0;
         if(!file.is_open())
         {
-            std::cout << "file wont open xD" << std::endl;
-            return;
+            std::cerr << "Unable to open file." << std::endl;
+            return count;
         }
 
         while(std::getline(file, line))
@@ -151,14 +196,13 @@ namespace File
             std::istringstream iss(line);
             std::string pass, hash;
             if(std::getline(iss, hash))
-            {
-                if (binarySearchInFile("data/crack.txt", hash))
+                if (binarySearchInFile(hash))
                     count++;
-            }
         }
 
-        std::cout << "Matches found: " << count << std::endl;
+        // std::cout << "Matches found: " << count << std::endl;
         file.close();
+        return count;
     }
 
     // REMOVE DONT WORK WITH VECTORS STUPID
@@ -204,7 +248,6 @@ namespace File
             {
                 if(!isValidPassword(line))
                 {
-                    char randLower = (97 + rand() % 26);
                     if(!containsNumbers(line))
                     {
                         line += "123";
