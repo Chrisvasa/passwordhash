@@ -19,7 +19,6 @@ namespace Application
     std::string hash = {};
     std::string solved = {};
     std::string input = {};
-    std::string output = {};
     char password[50] = {};
     std::string clearpass, t = {};
     bool accountCreated, loginFailed, security, passwordFound;
@@ -77,28 +76,38 @@ namespace Application
     void PassCrackerWindow(void)
     {
         ImGui::Begin("Password Cracker");
-        ImGui::InputText("Enter Hash/Password: ", &hash);
-        ImGui::InputText("Input file: ", &input);
-        ImGui::InputText("Output file: ", &output);
+        ImGui::InputText(_labelPrefix("Passowrd/Hash").c_str(), &hash);
+        ImGui::InputText(_labelPrefix("Input filepath:").c_str(), &input);
 
         if(ImGui::Button("Generate Hashes")) {
-            File::readAndWriteToFile(File::appendHashesToExistingPasswords,"data/rockyou.txt", "data/cracked_temp.txt");
+          // SHOULD ONLY BE USED WITH FRESH PASSWORD FILE - Will append hash to whatever text is infront of it.
+          File::readAndWriteToFile(File::appendHashesToExistingPasswords, input);
             // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
         }
         if(ImGui::Button("Sort Hashes")) {
-            File::readAndWriteToFile(File::sortTextByHash, "data/cracked_temp.txt", "data/crack.txt");
+          if(input == "") // File for sorting hashes - STANDARD IS users.txt 
+            File::readAndWriteToFile(File::sortTextByHash);
+          else
+           File::readAndWriteToFile(File::sortTextByHash, input);
             // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
         }
         if(ImGui::Button("Find password")) {
             auto startTime = std::chrono::high_resolution_clock::now();
-            passwordFound = File::binarySearchInFile(hash, solved, input);
+            if(input == "") // File for binarySearch - STANDARD IS crack.txt
+              passwordFound = File::binarySearchInFile(hash, solved);
+            else
+              passwordFound = File::binarySearchInFile(hash, solved, input);
             auto endTime = std::chrono::high_resolution_clock::now();
             std::cout << "\nFinding password took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
         }
         if(ImGui::Button("Find matches")) {
             std::cout << "Finding matches.." << std::endl;
+            int count = 0;
             auto startTime = std::chrono::high_resolution_clock::now();
-            int count = File::findMatches();
+            if(input == "") // File for passwords to crack - STANDARD IS tocrack.txt 
+              count = File::findMatches();
+            else
+              count = File::findMatches(input);
             auto endTime = std::chrono::high_resolution_clock::now();
             std::cout << "\nFinding matches took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
             std::cout << "Found: " << count << std::endl;

@@ -19,7 +19,7 @@ namespace File
     void ensureValidPasswords(std::string& line, std::ifstream& inFile, std::ofstream& outFile);
     void appendHashesToExistingPasswords(std::string& line, std::ifstream& inFile, std::ofstream& outFile);
     void sortTextByHash(std::string& line, std::ifstream& inFile, std::ofstream& outFile);
-    int findMatches();
+    int findMatches(const std::string& path = "data/tocrack.txt");
 }
 
 #endif

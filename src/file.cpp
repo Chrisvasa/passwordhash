@@ -50,7 +50,6 @@ namespace File
             {
                 if (password == targetVal)
                 {
-                    // std::cout << "Found: " << username << " with the password: " << password << std::endl;
                     file.close();
                     return true;
                 }
@@ -63,8 +62,6 @@ namespace File
         file.close();
         return false;
     }
-
-
 
     bool binarySearchInFile(const std::string& targetVal, std::string& foundVal, const std::string& path)
     {
@@ -179,13 +176,13 @@ namespace File
         inFile.close();
         outFile.close();
 
-        // std::remove(filePath.c_str()); // Delete the original file
-        // std::rename("data/temp.txt", filePath.c_str()); // Rename temp file to original file name
+        std::remove(inPath.c_str()); // Delete the original file
+        std::rename(outPath.c_str(), inPath.c_str()); // Rename temp file to original file name
     }
 
-    int findMatches()
+    int findMatches(const std::string& path)
     {
-        std::ifstream file("data/tocrack.txt");
+        std::ifstream file(path);
         std::string line;
         int count = 0;
         if(!file.is_open())
@@ -199,7 +196,7 @@ namespace File
             std::istringstream iss(line);
             std::string pass, hash;
             if(std::getline(iss, hash))
-                if (binarySearchInFile(hash, "data/crack.txt"))
+                if (binarySearchInFile(hash))
                     count++;
         }
 
@@ -251,7 +248,6 @@ namespace File
             {
                 if(!isValidPassword(line))
                 {
-                    char randLower = (97 + rand() % 26);
                     if(!containsNumbers(line))
                     {
                         line += "123";
