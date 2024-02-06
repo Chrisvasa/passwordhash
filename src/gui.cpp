@@ -82,16 +82,16 @@ namespace Application
         ImGui::InputText("Output file: ", &output);
 
         if(ImGui::Button("Generate Hashes")) {
-            File::readAndWriteToFile("data/rockyou.txt", "data/cracked_temp.txt", File::appendHashesToExistingPasswords);
+            File::readAndWriteToFile(File::appendHashesToExistingPasswords,"data/rockyou.txt", "data/cracked_temp.txt");
             // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
         }
         if(ImGui::Button("Sort Hashes")) {
-            File::readAndWriteToFile("data/cracked_temp.txt", "data/crack.txt", File::sortTextByHash);
+            File::readAndWriteToFile(File::sortTextByHash, "data/cracked_temp.txt", "data/crack.txt");
             // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
         }
         if(ImGui::Button("Find password")) {
             auto startTime = std::chrono::high_resolution_clock::now();
-            passwordFound = File::binarySearchInFile("data/passhash.txt", hash, solved);
+            passwordFound = File::binarySearchInFile(hash, solved, input);
             auto endTime = std::chrono::high_resolution_clock::now();
             std::cout << "\nFinding password took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
         }

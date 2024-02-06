@@ -19,7 +19,7 @@ namespace File
     const std::string UNSAFE_USERS {"data/unsafe_users.txt"};
     constexpr char DELIMITER {';'};
 
-    bool binarySearchInFile(const std::string& path, const std::string& targetVal)
+    bool binarySearchInFile(const std::string& targetVal, const std::string& path)
     {
         std::ifstream file(path);
         if(!file.is_open())
@@ -66,7 +66,7 @@ namespace File
 
 
 
-    bool binarySearchInFile(const std::string& path, const std::string& targetVal, std::string& foundVal)
+    bool binarySearchInFile(const std::string& targetVal, std::string& foundVal, const std::string& path)
     {
         std::ifstream file(path);
         if(!file.is_open())
@@ -162,10 +162,10 @@ namespace File
         std::cout << "User was sucessfully saved." << std::endl;
     }
 
-    void readAndWriteToFile(const std::string iFilePath, const std::string oFilePath, std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing)
+    void readAndWriteToFile(std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing, const std::string& inPath, const std::string& outPath)
     {
-        std::ifstream inFile(iFilePath);
-        std::ofstream outFile(oFilePath);
+        std::ifstream inFile(inPath);
+        std::ofstream outFile(outPath);
         std::string line;
 
         if(!inFile.is_open() || !outFile.is_open()) 
@@ -199,7 +199,7 @@ namespace File
             std::istringstream iss(line);
             std::string pass, hash;
             if(std::getline(iss, hash))
-                if (binarySearchInFile("data/crack.txt", hash))
+                if (binarySearchInFile(hash, "data/crack.txt"))
                     count++;
         }
 
