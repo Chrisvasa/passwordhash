@@ -111,6 +111,7 @@ int main(int, char**)
     bool show_demo_window = true;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    Application App;
 
     // Main loop
 #ifdef __EMSCRIPTEN__
@@ -134,7 +135,7 @@ int main(int, char**)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         // -------- MY CODE HERE ---------------
-        Application::RenderUI();
+        App.RenderUI();
         // ------- MY CODE ENDS HERE -----------
         // Rendering
         ImGui::Render();
