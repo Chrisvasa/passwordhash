@@ -64,6 +64,54 @@ namespace File
         return false;
     }
 
+
+
+    bool binarySearchInFile(const std::string& path, const std::string& targetVal, std::string& foundVal)
+    {
+        std::ifstream file(path);
+        if(!file.is_open())
+        {
+            std::cout << "Couldn't open file" << std::endl;
+            return 1;
+        }
+
+        int start = 0;
+        file.seekg(0, std::ios::end);
+        int end = file.tellg();
+        std::string line;
+
+        while(start <= end)
+        {
+            int mid = start + (end - start) / 2;
+            file.seekg(mid);
+
+            if (mid != 0) { // If not at the start of the file
+                std::getline(file, line); // Read and discard partial line if mid is in the middle of a line
+            }
+
+            std::getline(file, line);
+            std::istringstream iss(line);
+            std::string username, password;
+
+            if(std::getline(iss, username, DELIMITER) && std::getline(iss, password))
+            {
+                if (password == targetVal)
+                {
+                    // std::cout << "Found: " << username << " with the password: " << password << std::endl;
+                    foundVal = username;
+                    file.close();
+                    return true;
+                }
+                else if (password < targetVal)
+                    start = mid + 1;
+                else
+                    end = mid - 1;
+            }
+        }
+        file.close();
+        return false;
+    }
+
     std::optional<User> getUserFromFile(const std::string& targetUser)
     {
         std::ifstream file(USERFILE);
@@ -135,15 +183,15 @@ namespace File
         // std::rename("data/temp.txt", filePath.c_str()); // Rename temp file to original file name
     }
 
-    void findMatches()
+    int findMatches()
     {
         std::ifstream file("data/tocrack.txt");
         std::string line;
         int count = 0;
         if(!file.is_open())
         {
-            std::cout << "file wont open xD" << std::endl;
-            return;
+            std::cerr << "Unable to open file." << std::endl;
+            return count;
         }
 
         while(std::getline(file, line))
@@ -151,14 +199,13 @@ namespace File
             std::istringstream iss(line);
             std::string pass, hash;
             if(std::getline(iss, hash))
-            {
                 if (binarySearchInFile("data/crack.txt", hash))
                     count++;
-            }
         }
 
-        std::cout << "Matches found: " << count << std::endl;
+        // std::cout << "Matches found: " << count << std::endl;
         file.close();
+        return count;
     }
 
     // REMOVE DONT WORK WITH VECTORS STUPID

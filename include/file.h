@@ -8,6 +8,7 @@
 namespace File
 {
     bool binarySearchInFile(const std::string& path, const std::string& targetVal);
+    bool binarySearchInFile(const std::string& path, const std::string& targetVal, std::string& foundVal);
     std::optional<User> getUserFromFile(const std::string& targetUser);
     void saveUserToFile(User& user, const std::string& pass);
     void saveUnsafeToFile(User& user, const std::string& pass);
@@ -17,7 +18,7 @@ namespace File
     void ensureValidPasswords(std::string& line, std::ifstream& inFile, std::ofstream& outFile);
     void appendHashesToExistingPasswords(std::string& line, std::ifstream& inFile, std::ofstream& outFile);
     void sortTextByHash(std::string& line, std::ifstream& inFile, std::ofstream& outFile);
-    void findMatches();
+    int findMatches();
 }
 
 #endif

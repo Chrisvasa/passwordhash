@@ -4,6 +4,7 @@
 #include "../include/gui.h"
 #include "../include/usermanager.h"
 #include "../imgui/imgui.h"
+#include "../imgui/imgui_stdlib.h"
 #include "../include/file.h"
 
 // This class manages the different ImGui components and their input
@@ -15,13 +16,13 @@ namespace Application
 
     // CRINGE GLOBAL VARIABLE
     char username[50] = {};
-    char hash[50] = {}; 
+    std::string hash = {};
+    std::string solved = {};
+    std::string input = {};
+    std::string output = {};
     char password[50] = {};
-    std::string clearpass = {};
-    std::string t;
-    bool accountCreated = false;
-    bool loginFailed = false;
-    bool security = false;
+    std::string clearpass, t = {};
+    bool accountCreated, loginFailed, security, passwordFound;
 
     void RenderUI(void)
     {
@@ -76,7 +77,10 @@ namespace Application
     void PassCrackerWindow(void)
     {
         ImGui::Begin("Password Cracker");
-        ImGui::InputText(_labelPrefix("Enter Hash: ").c_str(), hash, sizeof(hash));
+        ImGui::InputText("Enter Hash/Password: ", &hash);
+        ImGui::InputText("Input file: ", &input);
+        ImGui::InputText("Output file: ", &output);
+
         if(ImGui::Button("Generate Hashes")) {
             File::readAndWriteToFile("data/rockyou.txt", "data/cracked_temp.txt", File::appendHashesToExistingPasswords);
             // TAKE TEXTFILE NAME EG: "users.txt" <--- And then add it to a string with data/ 
@@ -87,21 +91,22 @@ namespace Application
         }
         if(ImGui::Button("Find password")) {
             auto startTime = std::chrono::high_resolution_clock::now();
-            accountCreated = File::binarySearchInFile("data/crack.txt", hash);
+            passwordFound = File::binarySearchInFile("data/passhash.txt", hash, solved);
             auto endTime = std::chrono::high_resolution_clock::now();
             std::cout << "\nFinding password took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
         }
         if(ImGui::Button("Find matches")) {
             std::cout << "Finding matches.." << std::endl;
             auto startTime = std::chrono::high_resolution_clock::now();
-            File::findMatches();
+            int count = File::findMatches();
             auto endTime = std::chrono::high_resolution_clock::now();
             std::cout << "\nFinding matches took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
+            std::cout << "Found: " << count << std::endl;
         }
-        if(accountCreated)
+        if(passwordFound)
         {
           ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
-          ImGui::Text(("The password is: " + t).c_str());
+          ImGui::Text(("The password is: " + solved).c_str());
           ImGui::PopStyleColor();
         }
         ImGui::End();
