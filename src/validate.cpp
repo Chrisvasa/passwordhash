@@ -1,6 +1,7 @@
 #include <regex>
 #include <algorithm>
 #include <cctype>
+#include <string>
 
 bool isValidEmail(const std::string& userName)
 {
@@ -12,6 +13,16 @@ bool isValidPassword(const std::string& password)
 {
     std::regex pattern("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z\\d]).+$"); // Ex: Ggg1234!
     return (password.length() > 7 && std::regex_match(password, pattern));
+}
+
+bool equalsIgnoreCase(const std::string& a, const std::string& b)
+{
+  if(a.size() != b.size())
+    return false;
+  for (int i = 0; i < a.size(); i++)
+    if(std::tolower(a[i]) != std::tolower(b[i]))
+      return false;
+  return true;
 }
 
 bool containsDigit(const std::string& str) 

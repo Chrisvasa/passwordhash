@@ -30,7 +30,7 @@ void Application::LoginWindow(void)
         }
         else 
         {
-            loginFailed = true;
+            toggleBool(loginFailed);
         }
     }
     ImGui::SameLine();
@@ -38,7 +38,7 @@ void Application::LoginWindow(void)
     {
         if(createUser(std::string(username), std::string(password), security)) 
         {
-            accountCreated = true;
+          toggleBool(accountCreated); 
         }
     }
 
@@ -75,15 +75,19 @@ void Application::PassCrackerWindow(void)
       if(input.empty()) // File for sorting hashes - STANDARD IS users.txt 
         File::readAndWriteToFile(File::sortTextByHash);
       else
-       File::readAndWriteToFile(File::sortTextByHash, input);
+        File::readAndWriteToFile(File::sortTextByHash, input);
     }
     if(ImGui::Button("Find password")) 
     {
         auto startTime = std::chrono::high_resolution_clock::now();
-        if(input.empty()) // File for binarySearch - STANDARD IS crack.txt
+        if(input.empty()) {// File for binarySearch - STANDARD IS crack.txt
           passwordFound = File::binarySearchInFile(hash, solved);
-        else
+          toggleBool(passwordFound);
+        }
+        else {
           passwordFound = File::binarySearchInFile(hash, solved, input);
+          toggleBool(passwordFound);
+        }
         auto endTime = std::chrono::high_resolution_clock::now();
         std::cout << "\nFinding password took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
     }
@@ -99,6 +103,9 @@ void Application::PassCrackerWindow(void)
         auto endTime = std::chrono::high_resolution_clock::now();
         std::cout << "\nFinding matches took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
         std::cout << "Found: " << count << std::endl;
+    }
+    if(ImGui::Button("Make valid password")) {
+      File::readAndWriteToFile(File::ensureValidPasswords, input);
     }
 
     if(passwordFound)
@@ -121,4 +128,14 @@ std::string Application::_labelPrefix(const char* const label)
     std::string labelID = "##";
     labelID += label;
     return labelID;
+}
+
+void Application::toggleBool(bool& b)
+{
+  accountCreated = false;
+  loginFailed = false;
+  security = false;
+  passwordFound = false;
+
+  b = true;
 }

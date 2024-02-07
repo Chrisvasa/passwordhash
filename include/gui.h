@@ -21,6 +21,7 @@ private:
     void LoginWindow(void);
     void PassCrackerWindow(void);
     std::string _labelPrefix(const char* const label);
+    void toggleBool(bool& b);
 };
 
 #endif

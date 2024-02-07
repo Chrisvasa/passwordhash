@@ -5,6 +5,7 @@
 
 bool isValidEmail(const std::string& userName);
 bool isValidPassword(const std::string& password);
+bool equalsIgnoreCase(const std::string& a, const std::string& b);
 bool containsDigit(const std::string& str);
 bool containsUppercase(const std::string& str);
 bool containsLowercase(const std::string& str);
