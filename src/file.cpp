@@ -6,6 +6,7 @@
 #include <cctype>
 #include <functional>
 #include <string>
+#include <locale>
 #include <openssl/evp.h>
 #include "../include/file.h"
 #include "../include/validate.h"
@@ -128,7 +129,7 @@ namespace File
 
             if(std::getline(iss, username, DELIMITER) && std::getline(iss, salt, DELIMITER) && std::getline(iss, password))
             {
-                if(username == targetUser)
+                if(equalsIgnoreCase(username, targetUser))
                 {
                     return User(username, salt, password);
                 }
@@ -235,7 +236,7 @@ namespace File
         });
         for(auto& pair : pairs)
         {
-            outFile << pair.first << ';' << pair.second << std::endl;
+            outFile << pair.first << ';' << pair.second << '\n';
         }
     }
 
@@ -271,11 +272,11 @@ namespace File
                             line += randUpper;
                         }
                     }  
-                    outFile << line << std::endl;
+                    outFile << line << '\n';
                 }
                 else
                 {
-                    outFile << line << std::endl;
+                    outFile << line << '\n';
                 }
             }
         }
@@ -283,11 +284,11 @@ namespace File
 
     void appendHashesToExistingPasswords(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
     {
-        while(std::getline(inFile, line))
-        {
-            outFile << line << DELIMITER;
-            outFile << Hash::hashPassword(line, false) << std::endl;;
-        }
+      while(std::getline(inFile, line))
+      {
+        outFile << line << DELIMITER;
+        outFile << Hash::hashPassword(line, false) << '\n';
+      }
     }
 
 }
