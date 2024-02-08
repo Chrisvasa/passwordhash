@@ -3,6 +3,8 @@
 #include <cctype>
 #include <string>
 
+// Handles different validation aspects of the program
+
 bool isValidEmail(const std::string& userName)
 {
     std::regex pattern("^[A-Za-z]{2,}@[A-Za-z]+\\.[A-Za-z]{2,}"); // Ex: gg@gg.gg

@@ -3,6 +3,10 @@
 #include <random>
 #include "../include/hash.h"
 
+/*  Handles the security aspect of the program
+    Hashes, salts and checks validity of existing passwords
+*/
+
 namespace Hash
 {
     std::string hashPassword(const std::string& password, bool security)

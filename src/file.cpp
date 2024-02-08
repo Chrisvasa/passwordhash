@@ -12,13 +12,15 @@
 #include "../include/hash.h"
 
 
-// Manages all file access functions
+// Manages searching, reading and writing to files
 namespace File
 {
+    // Variables to make changes a bit easier since these show up a lot in the file.
     const std::string USERFILE {"data/users.txt"};
     const std::string UNSAFE_USERS {"data/unsafe_users.txt"};
     constexpr char DELIMITER {';'};
 
+    // Binary search that returns true or false depending on if targetValue was found
     bool binarySearchInFile(const std::string& targetVal, const std::string& path)
     {
         std::ifstream file(path);
@@ -63,6 +65,8 @@ namespace File
         return false;
     }
 
+    // OVERLOADED Binary search that returns true or false depending on if targetValue was found
+    // Also takes a reference to string to return a password if found
     bool binarySearchInFile(const std::string& targetVal, std::string& foundVal, const std::string& path)
     {
         std::ifstream file(path);
@@ -109,6 +113,7 @@ namespace File
         return false;
     }
 
+    // Function to fetch users from a file and return said user or a nullptr
     std::optional<User> getUserFromFile(const std::string& targetUser, const std::string& pass)
     {
         std::ifstream file(USERFILE);
@@ -159,6 +164,10 @@ namespace File
         std::cout << "User was sucessfully saved." << std::endl;
     }
 
+    /*  Opens both input & output files
+        Executes passed in function (std::function)
+        Replaces the original input file with the temporary output file.
+    */
     void readAndWriteToFile(std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing, const std::string& inPath, const std::string& outPath)
     {
         std::ifstream inFile(inPath);
@@ -176,10 +185,11 @@ namespace File
         inFile.close();
         outFile.close();
 
-        std::remove(inPath.c_str()); // Delete the original file
-        std::rename(outPath.c_str(), inPath.c_str()); // Rename temp file to original file name
+        std::remove(inPath.c_str());
+        std::rename(outPath.c_str(), inPath.c_str());
     }
 
+    // Uses binarySearch to find as many matching passwords as possible in given hash file
     int findMatches(const std::string& path)
     {
         std::ifstream file(path);

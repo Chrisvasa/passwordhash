@@ -4,6 +4,8 @@
 #include "hash.h"
 #include "file.h"
 
+//Handles the logic surrounding the user creation and authentication
+
 bool createUser(const std::string& userName, const std::string& password, bool secure)
 {
     if(!isValidEmail(userName))

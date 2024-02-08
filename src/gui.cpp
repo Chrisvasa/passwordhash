@@ -8,6 +8,10 @@
 #include "../imgui/ImGuiFileDialog.h"
 #include "../include/file.h"
 
+/* Manages all the different GUI aspects
+   Draws the GUI and handles the different actions
+*/
+
 Application::Application() {}
 
 void Application::RenderUI(void)
