@@ -5,7 +5,9 @@
 #include "../include/usermanager.h"
 #include "../imgui/imgui.h"
 #include "../imgui/imgui_stdlib.h"
+#include "../imgui/ImGuiFileDialog.h"
 #include "../include/file.h"
+
 
 Application::Application() {}
 
@@ -63,7 +65,22 @@ void Application::PassCrackerWindow(void)
 {
     ImGui::Begin("Password Cracker");
     ImGui::InputText(_labelPrefix("Passowrd/Hash").c_str(), &hash);
-    ImGui::InputText(_labelPrefix("Input filepath:").c_str(), &input);
+    if(ImGui::Button("Open File"))
+    {
+      ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".txt");
+    }
+    ImGui::Text("Currently selected file: %s",  input.c_str());
+
+    if(ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+    {
+      if(ImGuiFileDialog::Instance()->IsOk())
+      {
+        input = ImGuiFileDialog::Instance()->GetCurrentFileName();
+        std::cout << input << std::endl;
+      }
+
+      ImGuiFileDialog::Instance()->Close();
+    }
 
     if(ImGui::Button("Generate Hashes")) 
     {

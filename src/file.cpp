@@ -6,7 +6,6 @@
 #include <cctype>
 #include <functional>
 #include <string>
-#include <locale>
 #include <openssl/evp.h>
 #include "../include/file.h"
 #include "../include/validate.h"
