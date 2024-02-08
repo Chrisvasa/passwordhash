@@ -26,8 +26,8 @@ namespace File
         std::ifstream file(path);
         if(!file.is_open())
         {
-            std::cout << "Couldn't open file" << std::endl;
-            return 1;
+            std::cerr << "Couldn't open file" << std::endl;
+            return false;
         }
 
         int start = 0;
@@ -40,7 +40,7 @@ namespace File
             int mid = start + (end - start) / 2;
             file.seekg(mid);
 
-            // If not at the start of the file
+            // If not at the start of row
             if (mid != 0)
                 std::getline(file, line);
 
@@ -72,8 +72,8 @@ namespace File
         std::ifstream file(path);
         if(!file.is_open())
         {
-            std::cout << "Couldn't open file" << std::endl;
-            return 1;
+            std::cerr << "Couldn't open file" << std::endl;
+            return false;
         }
 
         int start = 0;
@@ -86,7 +86,7 @@ namespace File
             int mid = start + (end - start) / 2;
             file.seekg(mid);
 
-            // If not at the start of the file
+            // If not at the start of row
             if (mid != 0)
                 std::getline(file, line);
 
@@ -262,7 +262,7 @@ namespace File
                     }
                     if(!containsLowercase(line))
                     {
-                        char randLower = (97 + rand() % 26);
+                        char randLower = ('a' + rand() % 26);
                         line += randLower;
                     }
                     if(!containsSymbols(line))
@@ -275,7 +275,7 @@ namespace File
                             line[0] = std::toupper(line[0]);
                         else
                         {
-                            char randUpper = (65 + rand() % 26);
+                            char randUpper = ('A' + rand() % 26);
                             line += randUpper;
                         }
                     }  
@@ -297,5 +297,4 @@ namespace File
         outFile << Hash::hashPassword(line, false) << '\n';
       }
     }
-
 }

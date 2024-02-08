@@ -27,7 +27,7 @@ void Application::LoginWindow(void)
     ImGui::InputText(_labelPrefix("Password:").c_str(), &password, ImGuiInputTextFlags_Password);
 
     if(ImGui::Button("Login")) {
-        if(authenticateAndLogin(std::string(username), std::string(password))) 
+        if(Manage::authenticateAndLogin(std::string(username), std::string(password))) 
         {
             std::cout << "Login success!" << std::endl;
             username = {};
@@ -42,7 +42,7 @@ void Application::LoginWindow(void)
     ImGui::SameLine();
     if (ImGui::Button("Create Account"))
     {
-        if(createUser(std::string(username), std::string(password), security)) 
+        if(Manage::createUser(std::string(username), std::string(password), security)) 
         {
           toggleBool(accountCreated); 
         }
@@ -108,11 +108,13 @@ void Application::PassCrackerWindow(void)
     if(ImGui::Button("Find password")) 
     {
         auto startTime = std::chrono::high_resolution_clock::now();
-        if(input.empty()) {
+        if(input.empty()) 
+        {
           passwordFound = File::binarySearchInFile(hash, solved);
           toggleBool(passwordFound);
         }
-        else {
+        else 
+        {
           passwordFound = File::binarySearchInFile(hash, solved, input);
           toggleBool(passwordFound);
         }
