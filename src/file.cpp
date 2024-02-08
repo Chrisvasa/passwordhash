@@ -39,9 +39,8 @@ namespace File
             file.seekg(mid);
 
             // If not at the start of the file
-            if (mid != 0) {
+            if (mid != 0)
                 std::getline(file, line);
-            }
 
             std::getline(file, line);
             std::istringstream iss(line);
@@ -84,9 +83,8 @@ namespace File
             file.seekg(mid);
 
             // If not at the start of the file
-            if (mid != 0) {
+            if (mid != 0)
                 std::getline(file, line);
-            }
 
             std::getline(file, line);
             std::istringstream iss(line);
@@ -106,11 +104,12 @@ namespace File
                     end = mid - 1;
             }
         }
+
         file.close();
         return false;
     }
 
-    std::optional<User> getUserFromFile(const std::string& targetUser)
+    std::optional<User> getUserFromFile(const std::string& targetUser, const std::string& pass)
     {
         std::ifstream file(USERFILE);
         std::string line;
@@ -128,33 +127,33 @@ namespace File
 
             if(std::getline(iss, username, DELIMITER) && std::getline(iss, salt, DELIMITER) && std::getline(iss, password))
             {
-                if(equalsIgnoreCase(username, targetUser))
+                if(equalsIgnoreCase(username, targetUser) && Hash::validatePassword(pass, salt, password))
                 {
-                    return User(username, salt, password);
+                    return User(username, Hash::isPasswordSecure(password));
                 }
             }
         }
-        
+
         return std::nullopt;
     }
 
-    void saveUserToFile(User& user, const std::string& pass)
+    void saveUserToFile(const std::string& username, const std::string& salt, const std::string& pass)
     {
         std::ofstream file;
 
         file.open(USERFILE, std::ios::app);
-        file << user.getUserName() << DELIMITER << user.getSalt() << DELIMITER << pass << std::endl;
+        file << username << DELIMITER << salt << DELIMITER << pass << std::endl;
         file.close();
 
         std::cout << "User was sucessfully saved." << std::endl;
     }
 
-    void saveUnsafeToFile(User& user, const std::string& pass)
+    void saveUnsafeToFile(const std::string& username, const std::string& pass)
     {
         std::ofstream file;
 
         file.open(UNSAFE_USERS, std::ios::app);
-        file << user.getUserName() << DELIMITER << pass << std::endl;;
+        file << username << DELIMITER << pass << std::endl;;
         file.close();
 
         std::cout << "User was sucessfully saved." << std::endl;
@@ -233,10 +232,9 @@ namespace File
         std::sort(pairs.begin(), pairs.end(), [] (std::pair<std::string, std::string>& v1, std::pair<std::string, std::string>& v2) {
             return v1.second < v2.second;
         });
+
         for(auto& pair : pairs)
-        {
             outFile << pair.first << ';' << pair.second << '\n';
-        }
     }
 
     // REWRITE THIS ABOMINATION

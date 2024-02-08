@@ -9,7 +9,7 @@ bool createUser(const std::string& userName, const std::string& password, bool s
     if(!isValidEmail(userName))
         return false;
     
-    std::optional<User> user = File::getUserFromFile(userName);
+    std::optional<User> user = File::getUserFromFile(userName, password);
     if(user.has_value()) {
         std::cout << "User already exists.." << std::endl;
         return false;
@@ -25,27 +25,20 @@ bool createUser(const std::string& userName, const std::string& password, bool s
     std::string hash = Hash::hashPassword(password, secure);
 
     // Saves the "safer" user
-    User newUser(userName, salt, safeHash);
-    File::saveUserToFile(newUser, safeHash);
+    File::saveUserToFile(userName, salt, safeHash);
     // Saves the "unsafe" user
-    File::saveUnsafeToFile(newUser, hash);
+    File::saveUnsafeToFile(userName, hash);
     std::cout << "User was created with the following information.\n" 
         << "Username: " << userName << "\nPassword: " << safeHash << std::endl;
     return true;
 }
 
-bool authenticateUser(User& user, std::string& password, bool secure)
+bool authenticateAndLogin(const std::string& userName, const std::string& password)
 {
-    std::string hash = Hash::hashPassword(user.getSalt() + password, secure);
-    return user.verifyLogin(user.getUserName(), hash);
-}
-
-bool authenticateAndLogin(std::string userName, std::string password)
-{
-    std::optional<User> user = File::getUserFromFile(userName);
-    if(!user) {
+    std::optional<User> user = File::getUserFromFile(userName, password);
+    if(!user.has_value()) {
         std::cout << "User not found." << std::endl;
         return false;
     }
-    return (authenticateUser(user.value(), password, user.value().isSecure()));
+    return true;
 }

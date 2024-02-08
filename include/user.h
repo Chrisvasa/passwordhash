@@ -4,15 +4,11 @@
 
 class User {
     std::string userName;
-    std::string password;
-    std::string salt;
+    bool secure = false;
 public:
-    User(const std::string userName, const std::string salt, std::string password);
+    User(const std::string userName, bool secure);
     std::string getUserName() const;
-    std::string getSalt() const;
     bool isSecure() const;
-    // void setPassword(std::string pass);
-    bool verifyLogin(const std::string& user,const std::string& pass);
 };
 
 #endif
