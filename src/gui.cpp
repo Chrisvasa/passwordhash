@@ -26,6 +26,8 @@ void Application::LoginWindow(void)
         if(authenticateAndLogin(std::string(username), std::string(password))) 
         {
             std::cout << "Login success!" << std::endl;
+            username = {};
+            password = {};
             loginFailed = false;
         }
         else 
@@ -75,7 +77,7 @@ void Application::PassCrackerWindow(void)
     {
       if(ImGuiFileDialog::Instance()->IsOk())
       {
-        input = ImGuiFileDialog::Instance()->GetCurrentFileName();
+        input = ImGuiFileDialog::Instance()->GetFilePathName();
         std::cout << input << std::endl;
       }
 
