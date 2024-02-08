@@ -5,11 +5,15 @@
 #include "../include/usermanager.h"
 #include "../imgui/imgui.h"
 #include "../imgui/imgui_stdlib.h"
+#include "../imgui/ImGuiFileDialog.h"
 #include "../include/file.h"
+
+/* Manages all the different GUI aspects
+   Draws the GUI and handles the different actions
+*/
 
 Application::Application() {}
 
-// This class manages the different ImGui components and their input
 void Application::RenderUI(void)
 {
   LoginWindow();
@@ -23,9 +27,11 @@ void Application::LoginWindow(void)
     ImGui::InputText(_labelPrefix("Password:").c_str(), &password, ImGuiInputTextFlags_Password);
 
     if(ImGui::Button("Login")) {
-        if(authenticateAndLogin(std::string(username), std::string(password))) 
+        if(Manage::authenticateAndLogin(std::string(username), std::string(password))) 
         {
             std::cout << "Login success!" << std::endl;
+            username = {};
+            password = {};
             loginFailed = false;
         }
         else 
@@ -36,14 +42,14 @@ void Application::LoginWindow(void)
     ImGui::SameLine();
     if (ImGui::Button("Create Account"))
     {
-        if(createUser(std::string(username), std::string(password), security)) 
+        if(Manage::createUser(std::string(username), std::string(password), security)) 
         {
           toggleBool(accountCreated); 
         }
     }
-
     ImGui::SameLine();
     ImGui::Checkbox("Extra security?", &security);
+    
     if(loginFailed)
     {
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f)); // Changes text to red
@@ -63,40 +69,67 @@ void Application::PassCrackerWindow(void)
 {
     ImGui::Begin("Password Cracker");
     ImGui::InputText(_labelPrefix("Passowrd/Hash").c_str(), &hash);
-    ImGui::InputText(_labelPrefix("Input filepath:").c_str(), &input);
+    if(ImGui::Button("Open File"))
+    {
+      IGFD::FileDialogConfig config;
+      config.path = "data/";
+      ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".txt", config);
+    }
+    ImGui::Text("Currently selected file: %s",  input.c_str());
+
+    if(ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+    {
+      if(ImGuiFileDialog::Instance()->IsOk())
+      {
+        input = ImGuiFileDialog::Instance()->GetFilePathName();
+        std::cout << input << std::endl;
+      }
+
+      ImGuiFileDialog::Instance()->Close();
+    }
 
     if(ImGui::Button("Generate Hashes")) 
     {
-      // SHOULD ONLY BE USED WITH FRESH PASSWORD FILE - Will append hash to whatever text is infront of it.
       File::readAndWriteToFile(File::appendHashesToExistingPasswords, input);
     }
+    ImGui::SameLine();
+    ImGui::Text("Appends Hashes to file with passwords.");
+
     if(ImGui::Button("Sort Hashes")) 
     {
-      if(input.empty()) // File for sorting hashes - STANDARD IS users.txt 
+      if(input.empty())
         File::readAndWriteToFile(File::sortTextByHash);
       else
         File::readAndWriteToFile(File::sortTextByHash, input);
     }
+    ImGui::SameLine();
+    ImGui::Text("Sorts file with hashes in alphabetical order.");
+
     if(ImGui::Button("Find password")) 
     {
         auto startTime = std::chrono::high_resolution_clock::now();
-        if(input.empty()) {// File for binarySearch - STANDARD IS crack.txt
+        if(input.empty()) 
+        {
           passwordFound = File::binarySearchInFile(hash, solved);
           toggleBool(passwordFound);
         }
-        else {
+        else 
+        {
           passwordFound = File::binarySearchInFile(hash, solved, input);
           toggleBool(passwordFound);
         }
         auto endTime = std::chrono::high_resolution_clock::now();
         std::cout << "\nFinding password took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
     }
+    ImGui::SameLine();
+    ImGui::Text("Attempts to find matching password to given hash");
+
     if(ImGui::Button("Find matches")) 
     {
         std::cout << "Finding matches.." << std::endl;
         int count = 0;
         auto startTime = std::chrono::high_resolution_clock::now();
-        if(input.empty()) // File for passwords to crack - STANDARD IS tocrack.txt 
+        if(input.empty())
           count = File::findMatches();
         else
           count = File::findMatches(input);
@@ -104,9 +137,14 @@ void Application::PassCrackerWindow(void)
         std::cout << "\nFinding matches took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
         std::cout << "Found: " << count << std::endl;
     }
+    ImGui::SameLine();
+    ImGui::Text("Attempts to find as many matches as possible to your Hash file.");
+
     if(ImGui::Button("Make valid password")) {
       File::readAndWriteToFile(File::ensureValidPasswords, input);
     }
+    ImGui::SameLine();
+    ImGui::Text("Takes a file of passwords and makes them valid for our program.");
 
     if(passwordFound)
     {

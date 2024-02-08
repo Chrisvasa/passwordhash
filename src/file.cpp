@@ -6,27 +6,28 @@
 #include <cctype>
 #include <functional>
 #include <string>
-#include <locale>
 #include <openssl/evp.h>
 #include "../include/file.h"
 #include "../include/validate.h"
 #include "../include/hash.h"
 
 
-// Manages all file access functions
+// Manages searching, reading and writing to files
 namespace File
 {
+    // Variables to make changes a bit easier since these show up a lot in the file.
     const std::string USERFILE {"data/users.txt"};
     const std::string UNSAFE_USERS {"data/unsafe_users.txt"};
     constexpr char DELIMITER {';'};
 
+    // Binary search that returns true or false depending on if targetValue was found
     bool binarySearchInFile(const std::string& targetVal, const std::string& path)
     {
         std::ifstream file(path);
         if(!file.is_open())
         {
-            std::cout << "Couldn't open file" << std::endl;
-            return 1;
+            std::cerr << "Couldn't open file" << std::endl;
+            return false;
         }
 
         int start = 0;
@@ -39,10 +40,9 @@ namespace File
             int mid = start + (end - start) / 2;
             file.seekg(mid);
 
-            // If not at the start of the file
-            if (mid != 0) {
+            // If not at the start of row
+            if (mid != 0)
                 std::getline(file, line);
-            }
 
             std::getline(file, line);
             std::istringstream iss(line);
@@ -65,13 +65,15 @@ namespace File
         return false;
     }
 
+    // OVERLOADED Binary search that returns true or false depending on if targetValue was found
+    // Also takes a reference to string to return a password if found
     bool binarySearchInFile(const std::string& targetVal, std::string& foundVal, const std::string& path)
     {
         std::ifstream file(path);
         if(!file.is_open())
         {
-            std::cout << "Couldn't open file" << std::endl;
-            return 1;
+            std::cerr << "Couldn't open file" << std::endl;
+            return false;
         }
 
         int start = 0;
@@ -84,10 +86,9 @@ namespace File
             int mid = start + (end - start) / 2;
             file.seekg(mid);
 
-            // If not at the start of the file
-            if (mid != 0) {
+            // If not at the start of row
+            if (mid != 0)
                 std::getline(file, line);
-            }
 
             std::getline(file, line);
             std::istringstream iss(line);
@@ -107,11 +108,13 @@ namespace File
                     end = mid - 1;
             }
         }
+
         file.close();
         return false;
     }
 
-    std::optional<User> getUserFromFile(const std::string& targetUser)
+    // Function to fetch users from a file and return said user or a nullptr
+    std::optional<User> getUserFromFile(const std::string& targetUser, const std::string& pass)
     {
         std::ifstream file(USERFILE);
         std::string line;
@@ -129,38 +132,42 @@ namespace File
 
             if(std::getline(iss, username, DELIMITER) && std::getline(iss, salt, DELIMITER) && std::getline(iss, password))
             {
-                if(equalsIgnoreCase(username, targetUser))
+                if(equalsIgnoreCase(username, targetUser) && Hash::validatePassword(pass, salt, password))
                 {
-                    return User(username, salt, password);
+                    return User(username, Hash::isPasswordSecure(password));
                 }
             }
         }
-        
+
         return std::nullopt;
     }
 
-    void saveUserToFile(User& user, const std::string& pass)
+    void saveUserToFile(const std::string& username, const std::string& salt, const std::string& pass)
     {
         std::ofstream file;
 
         file.open(USERFILE, std::ios::app);
-        file << user.getUserName() << DELIMITER << user.getSalt() << DELIMITER << pass << std::endl;
+        file << username << DELIMITER << salt << DELIMITER << pass << std::endl;
         file.close();
 
         std::cout << "User was sucessfully saved." << std::endl;
     }
 
-    void saveUnsafeToFile(User& user, const std::string& pass)
+    void saveUnsafeToFile(const std::string& username, const std::string& pass)
     {
         std::ofstream file;
 
         file.open(UNSAFE_USERS, std::ios::app);
-        file << user.getUserName() << DELIMITER << pass << std::endl;;
+        file << username << DELIMITER << pass << std::endl;;
         file.close();
 
         std::cout << "User was sucessfully saved." << std::endl;
     }
 
+    /*  Opens both input & output files
+        Executes passed in function (std::function)
+        Replaces the original input file with the temporary output file.
+    */
     void readAndWriteToFile(std::function<void(std::string&, std::ifstream&, std::ofstream&)> doTheThing, const std::string& inPath, const std::string& outPath)
     {
         std::ifstream inFile(inPath);
@@ -178,10 +185,11 @@ namespace File
         inFile.close();
         outFile.close();
 
-        std::remove(inPath.c_str()); // Delete the original file
-        std::rename(outPath.c_str(), inPath.c_str()); // Rename temp file to original file name
+        std::remove(inPath.c_str());
+        std::rename(outPath.c_str(), inPath.c_str());
     }
 
+    // Uses binarySearch to find as many matching passwords as possible in given hash file
     int findMatches(const std::string& path)
     {
         std::ifstream file(path);
@@ -234,10 +242,9 @@ namespace File
         std::sort(pairs.begin(), pairs.end(), [] (std::pair<std::string, std::string>& v1, std::pair<std::string, std::string>& v2) {
             return v1.second < v2.second;
         });
+
         for(auto& pair : pairs)
-        {
             outFile << pair.first << ';' << pair.second << '\n';
-        }
     }
 
     // REWRITE THIS ABOMINATION
@@ -255,7 +262,7 @@ namespace File
                     }
                     if(!containsLowercase(line))
                     {
-                        char randLower = (97 + rand() % 26);
+                        char randLower = ('a' + rand() % 26);
                         line += randLower;
                     }
                     if(!containsSymbols(line))
@@ -268,7 +275,7 @@ namespace File
                             line[0] = std::toupper(line[0]);
                         else
                         {
-                            char randUpper = (65 + rand() % 26);
+                            char randUpper = ('A' + rand() % 26);
                             line += randUpper;
                         }
                     }  
@@ -290,5 +297,4 @@ namespace File
         outFile << Hash::hashPassword(line, false) << '\n';
       }
     }
-
 }
