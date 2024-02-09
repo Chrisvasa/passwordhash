@@ -11,7 +11,8 @@ private:
     std::string username = {};
     std::string hash = {};
     std::string solved = {};
-    std::string input = {};
+    std::string searchFile = {};
+    std::string inputFile = {};
     std::string password = {};
     bool accountCreated = false;
     bool loginFailed = false;
@@ -20,6 +21,7 @@ private:
 
     void LoginWindow(void);
     void PassCrackerWindow(void);
+    void FileManagerWindow(void);
     std::string _labelPrefix(const char* const label);
     void toggleBool(bool& b);
 };
