@@ -60,6 +60,13 @@ namespace File
             // If not at the start of row
             if (mid != 0)
                 std::getline(file, line);
+            
+            // Handle potential read failure
+            if (!std::getline(file, line)) {
+                end = mid - 1;
+                file.clear();
+                continue;
+            }
 
             std::getline(file, line);
             std::istringstream iss(line);
@@ -103,6 +110,13 @@ namespace File
             // If not at the start of row
             if (mid != 0)
                 std::getline(file, line);
+
+            // Handle potential read failure
+            if (!std::getline(file, line)) {
+                end = mid - 1;
+                file.clear();
+                continue;
+            }
 
             std::getline(file, line);
             std::istringstream iss(line);
@@ -202,10 +216,9 @@ namespace File
             std::istringstream iss(line);
             std::string pass, hash;
             if(std::getline(iss, hash))
-                if (binarySearchInFile(hash))
-                    count++;
+              if (binarySearchInFile(hash))
+                count++;
         }
-
         file.close();
         return count;
     }
