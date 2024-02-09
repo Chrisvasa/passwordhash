@@ -17,9 +17,9 @@ namespace Hash
         unsigned int md_len, i;
 
         if(security)
-            md = EVP_sha256(); // selects the sha256 algorithm.
+            md = EVP_sha256();
         else
-            md = EVP_md5(); // selects the MD5 algorithm.
+            md = EVP_md5(); 
         mdctx = EVP_MD_CTX_new(); //creates a context for the digest.
         EVP_DigestInit_ex(mdctx, md, NULL); // initializes the digest context.
         EVP_DigestUpdate(mdctx, password.c_str(), password.size()); // hashes the data.
@@ -32,10 +32,10 @@ namespace Hash
 
         return hash.str();
     }
-
+    // Checks a hashed password to determine if it is MD5 or SHA256
     bool isPasswordSecure(const std::string& pass)
     {
-        return pass.length() > 16 ? true: false;
+        return pass.length() > 32 ? true: false;
     }
 
     bool validatePassword(const std::string& pass, const std::string& salt, const std::string password)

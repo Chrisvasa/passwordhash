@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <chrono>
+#include <cstdlib>
 #include "../include/gui.h"
 #include "../include/usermanager.h"
 #include "../imgui/imgui.h"
@@ -8,9 +9,8 @@
 #include "../imgui/ImGuiFileDialog.h"
 #include "../include/file.h"
 
-/* Manages all the different GUI aspects
-   Draws the GUI and handles the different actions
-*/
+// Manages all the different GUI aspects
+// Draws the GUI and handles the different actions
 
 Application::Application() {}
 
@@ -18,6 +18,7 @@ void Application::RenderUI(void)
 {
   LoginWindow();
   PassCrackerWindow();
+  FileManagerWindow();
 }
 
 void Application::LoginWindow(void)
@@ -68,83 +69,53 @@ void Application::LoginWindow(void)
 void Application::PassCrackerWindow(void)
 {
     ImGui::Begin("Password Cracker");
-    ImGui::InputText(_labelPrefix("Passowrd/Hash").c_str(), &hash);
-    if(ImGui::Button("Open File"))
-    {
-      IGFD::FileDialogConfig config;
-      config.path = "data/";
-      ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".txt", config);
-    }
-    ImGui::Text("Currently selected file: %s",  input.c_str());
+    ImGui::InputText(_labelPrefix("Enter Hash:").c_str(), &hash);
 
-    if(ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
-    {
-      if(ImGuiFileDialog::Instance()->IsOk())
-      {
-        input = ImGuiFileDialog::Instance()->GetFilePathName();
-        std::cout << input << std::endl;
-      }
-
-      ImGuiFileDialog::Instance()->Close();
-    }
-
-    if(ImGui::Button("Generate Hashes")) 
-    {
-      File::readAndWriteToFile(File::appendHashesToExistingPasswords, input);
-    }
-    ImGui::SameLine();
-    ImGui::Text("Appends Hashes to file with passwords.");
-
-    if(ImGui::Button("Sort Hashes")) 
-    {
-      if(input.empty())
-        File::readAndWriteToFile(File::sortTextByHash);
-      else
-        File::readAndWriteToFile(File::sortTextByHash, input);
-    }
-    ImGui::SameLine();
-    ImGui::Text("Sorts file with hashes in alphabetical order.");
-
-    if(ImGui::Button("Find password")) 
+    if(ImGui::Button("Crack Hash")) 
     {
         auto startTime = std::chrono::high_resolution_clock::now();
-        if(input.empty()) 
-        {
+        if(searchFile.empty()) 
           passwordFound = File::binarySearchInFile(hash, solved);
-          toggleBool(passwordFound);
-        }
         else 
-        {
-          passwordFound = File::binarySearchInFile(hash, solved, input);
-          toggleBool(passwordFound);
-        }
+          passwordFound = File::binarySearchInFile(hash, solved, searchFile);
         auto endTime = std::chrono::high_resolution_clock::now();
         std::cout << "\nFinding password took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
     }
     ImGui::SameLine();
     ImGui::Text("Attempts to find matching password to given hash");
 
+    if(ImGui::Button("Open File"))
+    {
+      IGFD::FileDialogConfig config;
+      config.path = "data/";
+      ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "Choose File", ".txt", config);
+    }
+    ImGui::SameLine();
+    ImGui::Text("Select a file that you wish to crack.");
+    ImGui::Text("Currently selected file: %s",  searchFile.c_str());
+
+    if(ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
+    {
+      if(ImGuiFileDialog::Instance()->IsOk())
+        searchFile = ImGuiFileDialog::Instance()->GetFilePathName();
+      ImGuiFileDialog::Instance()->Close();
+    }
+
     if(ImGui::Button("Find matches")) 
     {
         std::cout << "Finding matches.." << std::endl;
         int count = 0;
         auto startTime = std::chrono::high_resolution_clock::now();
-        if(input.empty())
+        if(searchFile.empty())
           count = File::findMatches();
         else
-          count = File::findMatches(input);
+          count = File::findMatches(searchFile);
         auto endTime = std::chrono::high_resolution_clock::now();
         std::cout << "\nFinding matches took: " << std::chrono::duration_cast<std::chrono::microseconds>(endTime - startTime).count() << " microseconds" << std::endl;
         std::cout << "Found: " << count << std::endl;
     }
     ImGui::SameLine();
     ImGui::Text("Attempts to find as many matches as possible to your Hash file.");
-
-    if(ImGui::Button("Make valid password")) {
-      File::readAndWriteToFile(File::ensureValidPasswords, input);
-    }
-    ImGui::SameLine();
-    ImGui::Text("Takes a file of passwords and makes them valid for our program.");
 
     if(passwordFound)
     {
@@ -153,6 +124,52 @@ void Application::PassCrackerWindow(void)
       ImGui::PopStyleColor();
     }
     ImGui::End();
+}
+
+void Application::FileManagerWindow()
+{
+    if(ImGui::Button("Open File"))
+    {
+      IGFD::FileDialogConfig config;
+      config.path = "data/";
+      ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey1", "Choose File", ".txt", config);
+    }
+    ImGui::SameLine();
+    ImGui::Text("Select a file that you modify");
+    ImGui::Text("Currently selected file: %s",  inputFile.c_str());
+
+    if(ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey1"))
+    {
+      if(ImGuiFileDialog::Instance()->IsOk())
+        inputFile = ImGuiFileDialog::Instance()->GetFilePathName();
+      ImGuiFileDialog::Instance()->Close();
+    }
+
+    if(ImGui::Button("Sort file by Hash"))
+    {
+      // Construct the command to sort the file
+      std::string command = "sort -t ';' -k2,2 " + inputFile + " -o " + inputFile;
+      // Execute the command
+      int result = system(command.c_str());
+
+      if (result != 0) {
+          // Handle the error
+      }
+    }
+
+    if(ImGui::Button("Generate Hashes")) 
+    {
+      File::readAndWriteToFile(File::appendHashesToExistingPasswords, inputFile);
+    }
+    ImGui::SameLine();
+    ImGui::Text("Appends Hashes to file with passwords.");
+
+  if(ImGui::Button("Make valid password"))
+  {
+      File::readAndWriteToFile(File::ensureValidPasswords, inputFile);
+    }
+    ImGui::SameLine();
+    ImGui::Text("Takes a file of passwords and makes them valid for our program.");
 }
 
 std::string Application::_labelPrefix(const char* const label)

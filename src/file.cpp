@@ -41,7 +41,7 @@ namespace File
     }
 
     // Binary search that returns true or false depending on if targetValue was found
-    bool binarySearchInFile(const std::string& targetVal, const std::string& path)
+    bool binarySearchInFile(const std::string& targetVal, const std::string& path = "data/crack.txt")
     {
         std::ifstream file;
         if(!openFile(file, path))
@@ -122,7 +122,6 @@ namespace File
                     end = mid - 1;
             }
         }
-
         file.close();
         return false;
     }
@@ -192,18 +191,18 @@ namespace File
     // Uses binarySearch to find as many matching passwords as possible in given hash file
     int findMatches(const std::string& path)
     {
-        std::ifstream file;
+        std::ifstream file(path);
         std::string line;
         int count = 0;
         if(!openFile(file, path))
             return count;
 
-        while(std::getline(file, line))
+        while(std::getline(hashFile, line))
         {
             std::istringstream iss(line);
             std::string pass, hash;
             if(std::getline(iss, hash))
-                if (binarySearchInFile(hash))
+                if (binarySearchInFile(hash, lines, hashFile))
                     count++;
         }
 
@@ -211,40 +210,8 @@ namespace File
         return count;
     }
 
-    // REMOVE DONT WORK WITH VECTORS STUPID
-    std::vector<std::pair<std::string, std::string>> fillPairFromFile(std::ifstream& file)
-    {
-        std::vector<std::pair<std::string, std::string>> lines;
-        std::string line;
-
-        std::cout << "Arrived at vector" << std::endl;
-        while(std::getline(file, line))
-        {
-            std::istringstream iss(line);
-            std::string pass, hash;
-            if(std::getline(iss, pass, ';') && std::getline(iss, hash))
-            {
-                std::pair<std::string, std::string> row { pass, hash };
-                lines.push_back(row);
-            }
-        }
-
-        std::cout << "Done with filling vector" << std::endl;
-        return lines;
-    }
-
-    void sortTextByHash(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
-    {
-        std::vector<std::pair<std::string, std::string>> pairs = fillPairFromFile(inFile);
-        std::sort(pairs.begin(), pairs.end(), [] (std::pair<std::string, std::string>& v1, std::pair<std::string, std::string>& v2) {
-            return v1.second < v2.second;
-        });
-
-        for(auto& pair : pairs)
-            outFile << pair.first << ';' << pair.second << '\n';
-    }
-
-    // REWRITE THIS ABOMINATION
+    // Not very effective, since it goes line by line and makes sure each password is valid.
+    // Better not use this on really large files :DDD
     void ensureValidPasswords(std::string& line, std::ifstream& inFile, std::ofstream& outFile)
     {
         std::mt19937 gen(static_cast<long unsigned int>(time(0))); 
@@ -258,7 +225,7 @@ namespace File
 
         while(std::getline(inFile, line))
         {
-            if(line.length() > 7 && !isValidPassword(line))
+            if(!isValidPassword(line))
             {
                 if(!containsDigit(line)) line += std::to_string(distNum(gen));
                 if(!containsLowercase(line)) line += addRandomCharacter('a', 'z');
