@@ -147,11 +147,8 @@ void Application::FileManagerWindow()
 
     if(ImGui::Button("Sort file by Hash"))
     {
-      // Construct the command to sort the file
       std::string command = "sort -t ';' -k2,2 " + inputFile + " -o " + inputFile;
-      // Execute the command
       int result = system(command.c_str());
-
       if (result != 0) {
           // Handle the error
       }
