@@ -41,7 +41,7 @@ namespace File
     }
 
     // Binary search that returns true or false depending on if targetValue was found
-    bool binarySearchInFile(const std::string& targetVal, const std::string& path = "data/crack.txt")
+    bool binarySearchInFile(const std::string& targetVal, const std::string& path)
     {
         std::ifstream file;
         if(!openFile(file, path))
@@ -191,18 +191,18 @@ namespace File
     // Uses binarySearch to find as many matching passwords as possible in given hash file
     int findMatches(const std::string& path)
     {
-        std::ifstream file(path);
+        std::ifstream file;
         std::string line;
         int count = 0;
         if(!openFile(file, path))
             return count;
 
-        while(std::getline(hashFile, line))
+        while(std::getline(file, line))
         {
             std::istringstream iss(line);
             std::string pass, hash;
             if(std::getline(iss, hash))
-                if (binarySearchInFile(hash, lines, hashFile))
+                if (binarySearchInFile(hash))
                     count++;
         }
 
