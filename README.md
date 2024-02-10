@@ -7,6 +7,9 @@ This project is a GUI-based application designed for managing user accounts, cra
 - File management capabilities, including file sorting and hash generation.
 - GUI built with ImGui for an intuitive user interface.
 
+## Screenshot
+![image](https://github.com/Chrisvasa/passwordhash/assets/29359169/5b7c3b5f-430f-449c-8976-f0e38c8954da)
+
 ## Usage
 Examples
 - Logging In: Enter your username and password in the 'Account Manager' window and click 'Login'.
