@@ -1,4 +1,4 @@
-# passwordhash
+# Password Recovery
 This project is a GUI-based application designed for managing user accounts, cracking passwords, and managing files. It utilizes ImGui for the graphical interface and offers various functionalities, including user authentication, password hashing, and file manipulation.
 
 ## Features
